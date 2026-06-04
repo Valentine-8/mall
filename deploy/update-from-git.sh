@@ -1,9 +1,23 @@
 #!/bin/bash
 # 在服务器 ~/mall 目录执行：./deploy/update-from-git.sh
 # 要求：已安装 git、JDK17、Maven、Node18+
+# 2核4G：编译前 stop 容器、限制 Maven/Node 内存；编完后 up -d（见 docs/git-deploy.md 第二节）
 set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+DEPLOY="$ROOT/deploy"
+
+export MAVEN_OPTS="${MAVEN_OPTS:--Xmx512m}"
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=512}"
+
+dc() {
+  (cd "$DEPLOY" && docker compose "$@") 2>/dev/null || (cd "$DEPLOY" && sudo docker compose "$@")
+}
+
+if [ -f "$DEPLOY/docker-compose.yml" ]; then
+  echo ">> docker compose stop (free memory for build)"
+  dc stop
+fi
 
 echo ">> git pull"
 git pull
@@ -25,8 +39,7 @@ rm -rf ../deploy/html/*
 cp -r dist/* ../deploy/html/
 cd "$ROOT"
 
-echo ">> restart containers"
-cd deploy
-docker compose restart mall-api nginx
-docker compose ps
+echo ">> start containers"
+dc up -d
+dc ps
 echo ">> done"

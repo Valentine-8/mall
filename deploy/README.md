@@ -143,33 +143,38 @@ cp config/application.yml.example config/application.yml
 - **JDK 17**、**Maven**（打 jar）
 - **Node 18+**（`ruoyi-ui` 里 `npm run build:prod`）
 
-若不想在服务器装这些，可以：**本机打包** → 只把 `ruoyi-admin.jar` 和 `dist` 同步到服务器（`scp` 或 rsync），代码更新仍用 `git pull` 拉源码，产物单独传。
+**省内存（必读）：** 编译前 `docker compose stop`，设置 `MAVEN_OPTS` / `NODE_OPTIONS`，编完再 `up -d`；或本机打包后只 `scp` 产物。详见 **[docs/git-deploy.md 第二节](../docs/git-deploy.md#二2核4g-省内存指南服务器已装-mavennode)**。
+
+若不想在服务器装 Maven/Node，可以：**本机打包** → 只把 `ruoyi-admin.jar` 和 `dist` 同步到服务器（`scp`），代码更新仍用 `git pull` 拉源码。
+
+### 执行 SQL 脚本
+
+**服务器上**（MySQL 容器已启动）：
+
+```bash
+chmod +x deploy/run-sql.sh
+./deploy/run-sql.sh sql/mall_social.sql
+./deploy/run-sql.sh --extra    # mall_social + mall_order_status_refund
+./deploy/run-sql.sh --list
+```
+
+**本机 Windows**（经 SSH，不必开 3306）：
+
+```powershell
+deploy\run-sql.bat sql\mall_social.sql
+deploy\run-sql.bat --extra
+```
+
+首次使用请编辑 `deploy\run-sql.bat` 里的私钥路径、公网 IP、`REMOTE_DIR`。
 
 ### 日常更新脚本（在服务器 `~/mall` 执行）
 
 ```bash
-#!/bin/bash
-set -e
-cd ~/mall
-git pull
-
-# 后端
-mvn clean package -DskipTests -pl ruoyi-admin -am
-cp ruoyi-admin/target/ruoyi-admin.jar deploy/app/
-
-# 前端
-cd ruoyi-ui
-npm ci
-npm run build:prod
-rm -rf ../deploy/html/*
-cp -r dist/* ../deploy/html/
-cd ..
-
-cd deploy
-sudo docker compose restart mall-api nginx
+chmod +x deploy/update-from-git.sh
+./deploy/update-from-git.sh
 ```
 
-保存为 `deploy/update-from-git.sh`，`chmod +x` 后每次：`./deploy/update-from-git.sh`。
+脚本会：`stop` 容器 → `git pull` → `mvn`/`npm`（默认限制内存）→ 复制 jar/dist → `docker compose up -d`。
 
 ### 注意
 

@@ -28,7 +28,7 @@
 
 - **[docs/deploy-from-zero.md](docs/deploy-from-zero.md)**（推荐，英文文件名不易乱码）
 - [docs/从零到上线指南.md](docs/从零到上线指南.md)（与上为同一份内容）
-- **[docs/git-deploy.md](docs/git-deploy.md)** — **GitHub 推送 + 服务器克隆/更新**（逐行注释命令）
+- **[docs/git-deploy.md](docs/git-deploy.md)** — **GitHub 推送 + 服务器克隆/更新**（含 **2核4G 省内存** 编译与更新）
 
 **已购腾讯云轻量 Docker、先用公网 IP 测试**：直接看文档 **阶段 3A**，配套 **[deploy/](deploy/)**（`docker compose` 一键起 MySQL + Redis + 后端 + Nginx）。  
 **SSH 密钥登录**：`scp`/`ssh` 须加 `-i 你的.pem`，见 `deploy/README.md` 与文档 **Q8**。
