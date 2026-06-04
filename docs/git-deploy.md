@@ -78,8 +78,14 @@ git status
 # 创建一次提交（说明可自拟）
 git commit -m "feat: 若依商城 C 端、Docker 部署、我的中心与 Git 部署文档"
 
-# 推送到 GitHub 的 main 分支（当前本地分支为 springboot3 时）
-git push -u github HEAD:main
+# 推送到 GitHub 的 main 分支
+git push -u github main
+
+# 若推送失败（index-pack failed），可用「无历史」分支再推（见本文第七节）
+# git checkout --orphan main
+# git add -A
+# git commit -m "feat: initial mall release"
+# git push -u github main
 ```
 
 若 GitHub 要求登录：
@@ -328,7 +334,24 @@ sudo docker compose restart mall-api
 
 ---
 
-## 七、相关文档
+## 七、推送失败 `index-pack failed` 时
+
+若 `git push` 报错 `did not receive expected object`，多为旧远程历史过大。可改用**无历史**首次推送：
+
+```powershell
+cd D:\Users\lemon\mall
+git checkout --orphan main
+git add -A
+git status
+git commit -m "feat: initial mall release"
+git push -u github main
+```
+
+成功后 GitHub 上只有一条干净提交，不影响日常使用 `git pull` / `git push`。
+
+---
+
+## 八、相关文档
 
 - [从零到上线指南](./deploy-from-zero.md) — 买服务器、备案、HTTPS  
 - [deploy/README.md](../deploy/README.md) — Docker 目录说明与命令速查
