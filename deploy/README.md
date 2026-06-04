@@ -105,9 +105,10 @@ docker compose exec mysql mysql -uroot -p"你的MySQL密码" -e "USE \`ry-vue\`;
 
 ---
 
-## 用 Git 在服务器上更新（推荐长期做法）
+## 用 Git 更新（推荐长期做法）
 
-可以。流程是：**本机 push 到 Git 仓库 → 服务器 `git pull` → 重新打包/重启**，不必每次 `scp`。
+流程是：**本机 push → 本机 mvn/npm 打包 → scp jar/dist → 服务器 restart**。  
+`git push` 不会更新线上网站（jar/dist 不在 Git 里）。详见 **[docs/git-deploy.md](../docs/git-deploy.md)**。
 
 ### 不要提交到 Git 的内容
 
@@ -136,16 +137,12 @@ cp config/application.yml.example config/application.yml
 
 首次仍要本机或服务器上完成一次 `mvn package` 与 `npm run build:prod`，把 jar 放进 `deploy/app/`、dist 放进 `deploy/html/`，再 `sudo docker compose up -d`。
 
-### 服务器需要具备
+### 服务器需要具备（当前配置）
 
-在 **2核4G** 上若要在服务器本地打包，需安装（Docker 镜像默认可能没有）：
+- **Git** — 按需 `git pull`（SQL、`deploy/` 配置等）
+- **Docker + Compose** — 跑 MySQL / Redis / 后端 / Nginx
 
-- **JDK 17**、**Maven**（打 jar）
-- **Node 18+**（`ruoyi-ui` 里 `npm run build:prod`）
-
-**省内存（必读）：** 编译前 `docker compose stop`，设置 `MAVEN_OPTS` / `NODE_OPTIONS`，编完再 `up -d`；或本机打包后只 `scp` 产物。详见 **[docs/git-deploy.md 第二节](../docs/git-deploy.md#二2核4g-省内存指南服务器已装-mavennode)**。
-
-若不想在服务器装 Maven/Node，可以：**本机打包** → 只把 `ruoyi-admin.jar` 和 `dist` 同步到服务器（`scp`），代码更新仍用 `git pull` 拉源码。
+**不需要**在服务器装 JDK、Maven、Node；编译在本机完成，只 `scp` 产物到 `deploy/app/`、`deploy/html/`。
 
 ### 执行 SQL 脚本
 
@@ -167,14 +164,13 @@ deploy\run-sql.bat --extra
 
 首次使用请编辑 `deploy\run-sql.bat` 里的私钥路径、公网 IP、`REMOTE_DIR`。
 
-### 日常更新脚本（在服务器 `~/mall` 执行）
+### 日常更新（本机编译 + scp）
 
-```bash
-chmod +x deploy/update-from-git.sh
-./deploy/update-from-git.sh
-```
+见 **[docs/git-deploy.md 第五节](../docs/git-deploy.md#五日常更新标准流程)**。
 
-脚本会：`stop` 容器 → `git pull` → `mvn`/`npm`（默认限制内存）→ 复制 jar/dist → `docker compose up -d`。
+### 服务器端编译（可选，附录）
+
+若服务器仍装 Maven/Node，可用 `deploy/update-from-git.sh`；当前推荐环境 **不使用** 该脚本。
 
 ### 注意
 

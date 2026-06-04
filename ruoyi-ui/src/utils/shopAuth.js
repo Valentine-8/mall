@@ -4,12 +4,12 @@ import { getToken } from '@/utils/auth'
 const SHOP_AUTH_PATHS = ['/shop/cart', '/shop/orders', '/shop/checkout', '/shop/profile']
 
 const MESSAGES = {
-  default: 'ÇëÏÈµÇÂ¼ÕËºÅ£¬¼´¿ÉÊ¹ÓÃ¹ºÎï³µ¡¢ÏÂµ¥Óë²é¿´¶©µ¥µÈ¹¦ÄÜ¡£',
-  cart: '²é¿´¹ºÎï³µÐèÒªÏÈµÇÂ¼£¬µÇÂ¼ºó¿É¹ÜÀíÒÑÑ¡ÉÌÆ·²¢½áËã¡£',
-  addCart: '¼ÓÈë¹ºÎï³µÐèÒªÏÈµÇÂ¼£¬µÇÂ¼ºó¿É½«ÉÌÆ·±£´æµ½¹ºÎï³µ¡£',
-  buyNow: 'Á¢¼´¹ºÂòÐèÒªÏÈµÇÂ¼£¬µÇÂ¼ºó½«½øÈë¶©µ¥½áËãÒ³Ãæ¡£',
-  orders: '²é¿´¶©µ¥ÐèÒªÏÈµÇÂ¼£¬µÇÂ¼ºó¿É²é¿´Ö§¸¶ÓëÎïÁ÷×´Ì¬¡£',
-  checkout: 'Ìá½»¶©µ¥ÐèÒªÏÈµÇÂ¼£¬ÇëµÇÂ¼ºó¼ÌÐø½áËã¡£'
+  default: 'è¯·å…ˆç™»å½•è´¦å·ï¼Œå³å¯ä½¿ç”¨è´­ç‰©è½¦ã€ä¸‹å•ä¸ŽæŸ¥çœ‹è®¢å•ç­‰åŠŸèƒ½ã€‚',
+  cart: 'æŸ¥çœ‹è´­ç‰©è½¦éœ€è¦å…ˆç™»å½•ï¼Œç™»å½•åŽå¯ç®¡ç†å·²é€‰å•†å“å¹¶ç»“ç®—ã€‚',
+  addCart: 'åŠ å…¥è´­ç‰©è½¦éœ€è¦å…ˆç™»å½•ï¼Œç™»å½•åŽå¯å°†å•†å“ä¿å­˜åˆ°è´­ç‰©è½¦ã€‚',
+  buyNow: 'ç«‹å³è´­ä¹°éœ€è¦å…ˆç™»å½•ï¼Œç™»å½•åŽå°†è¿›å…¥è®¢å•ç»“ç®—é¡µé¢ã€‚',
+  orders: 'æŸ¥çœ‹è®¢å•éœ€è¦å…ˆç™»å½•ï¼Œç™»å½•åŽå¯æŸ¥çœ‹æ”¯ä»˜ä¸Žç‰©æµçŠ¶æ€ã€‚',
+  checkout: 'æäº¤è®¢å•éœ€è¦å…ˆç™»å½•ï¼Œè¯·ç™»å½•åŽç»§ç»­ç»“ç®—ã€‚'
 }
 
 /**
@@ -20,12 +20,12 @@ const MESSAGES = {
 export function promptShopLogin(router, redirect, options = {}) {
   const scene = options.scene || 'default'
   const message = options.message || MESSAGES[scene] || MESSAGES.default
-  const title = options.title || 'ÐèÒªµÇÂ¼'
+  const title = options.title || 'éœ€è¦ç™»å½•'
   const target = redirect || router.currentRoute.value.fullPath
 
   return ElMessageBox.confirm(message, title, {
-    confirmButtonText: 'È¥µÇÂ¼',
-    cancelButtonText: 'ÏÈ¿´¿´',
+    confirmButtonText: 'åŽ»ç™»å½•',
+    cancelButtonText: 'å…ˆçœ‹çœ‹',
     type: 'info',
     distinguishCancelAndClose: true
   }).then(() => {

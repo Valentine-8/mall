@@ -1,78 +1,106 @@
 <template>
   <div class="shop-mine shop-content">
-    <div class="user-card" @click="onUserCardClick">
-      <div class="avatar">{{ avatarLetter }}</div>
-      <div class="info">
-        <div class="name">{{ isLogin ? displayName : '点击登录' }}</div>
-        <div class="sub">{{ isLogin ? '账号 ' + userName : '登录后享受完整服务' }}</div>
-      </div>
-      <el-icon class="arrow"><ArrowRight /></el-icon>
-    </div>
+    <h2 class="page-title shop-only-pc">个人中心</h2>
+    <div class="mine-body">
+      <aside class="mine-sidebar shop-only-pc">
+        <div class="sidebar-user" @click="onUserCardClick">
+          <div class="avatar-lg">{{ avatarLetter }}</div>
+          <div class="name">{{ isLogin ? displayName : '点击登录' }}</div>
+          <div class="sub">{{ isLogin ? '账号 ' + userName : '登录后享受完整服务' }}</div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-item" :class="{ active: isOrdersActive }" @click="goOrders()">我的订单</div>
+          <div class="nav-item" :class="{ active: isProfileActive }" @click="goProfile">我的资料</div>
+          <div class="nav-item" @click="goCart">购物车</div>
+        </nav>
+        <el-button v-if="isLogin" class="sidebar-logout" @click="handleLogout">退出登录</el-button>
+      </aside>
 
-    <div v-if="isLogin" class="order-panel">
-      <div class="panel-head" @click="goOrders()">
-        <span>我的订单</span>
-        <span class="link">全部订单 <el-icon><ArrowRight /></el-icon></span>
-      </div>
-      <div class="order-shortcuts">
-        <div class="shortcut" @click="goOrders('0')">
-          <el-icon><Wallet /></el-icon>
-          <span>待付款</span>
+      <div class="mine-main">
+        <div class="user-card shop-only-mobile" @click="onUserCardClick">
+          <div class="avatar">{{ avatarLetter }}</div>
+          <div class="info">
+            <div class="name">{{ isLogin ? displayName : '点击登录' }}</div>
+            <div class="sub">{{ isLogin ? '账号 ' + userName : '登录后享受完整服务' }}</div>
+          </div>
+          <el-icon class="arrow"><ArrowRight /></el-icon>
         </div>
-        <div class="shortcut" @click="goOrders('1')">
-          <el-icon><Box /></el-icon>
-          <span>待发货</span>
+
+        <div v-if="isLogin" class="order-panel">
+          <div class="panel-head" @click="goOrders()">
+            <span>我的订单</span>
+            <span class="link">全部订单 <el-icon><ArrowRight /></el-icon></span>
+          </div>
+          <div class="order-shortcuts">
+            <div class="shortcut" @click="goOrders('0')">
+              <el-icon><Wallet /></el-icon>
+              <span>待付款</span>
+            </div>
+            <div class="shortcut" @click="goOrders('1')">
+              <el-icon><Box /></el-icon>
+              <span>待发货</span>
+            </div>
+            <div class="shortcut" @click="goOrders('2')">
+              <el-icon><Van /></el-icon>
+              <span>待收货</span>
+            </div>
+            <div class="shortcut" @click="goOrders('3')">
+              <el-icon><CircleCheck /></el-icon>
+              <span>已完成</span>
+            </div>
+            <div class="shortcut" @click="goOrders('afterSale')">
+              <el-icon><RefreshLeft /></el-icon>
+              <span>退款/取消</span>
+            </div>
+          </div>
         </div>
-        <div class="shortcut" @click="goOrders('2')">
-          <el-icon><Van /></el-icon>
-          <span>待收货</span>
+
+        <div class="menu-list shop-only-mobile">
+          <div class="menu-item" @click="goOrders()">
+            <el-icon><List /></el-icon>
+            <span>我的订单</span>
+            <el-icon class="arrow"><ArrowRight /></el-icon>
+          </div>
+          <div class="menu-item" @click="goProfile">
+            <el-icon><User /></el-icon>
+            <span>我的资料</span>
+            <el-icon class="arrow"><ArrowRight /></el-icon>
+          </div>
+          <div class="menu-item" @click="goCart">
+            <el-icon><ShoppingCart /></el-icon>
+            <span>购物车</span>
+            <el-icon class="arrow"><ArrowRight /></el-icon>
+          </div>
         </div>
-        <div class="shortcut" @click="goOrders('3')">
-          <el-icon><CircleCheck /></el-icon>
-          <span>已完成</span>
+
+        <div v-if="!isLogin" class="guest-panel shop-only-pc">
+          <el-empty description="登录后查看订单、管理资料与购物车">
+            <el-button type="primary" @click="onUserCardClick">去登录</el-button>
+          </el-empty>
         </div>
-        <div class="shortcut" @click="goOrders('afterSale')">
-          <el-icon><RefreshLeft /></el-icon>
-          <span>退款/取消</span>
-        </div>
+
+        <el-button v-if="isLogin" class="logout-btn shop-only-mobile" @click="handleLogout">退出登录</el-button>
       </div>
     </div>
-
-    <div class="menu-list">
-      <div class="menu-item" @click="goOrders()">
-        <el-icon><List /></el-icon>
-        <span>我的订单</span>
-        <el-icon class="arrow"><ArrowRight /></el-icon>
-      </div>
-      <div class="menu-item" @click="goProfile">
-        <el-icon><User /></el-icon>
-        <span>我的资料</span>
-        <el-icon class="arrow"><ArrowRight /></el-icon>
-      </div>
-      <div class="menu-item" @click="goCart">
-        <el-icon><ShoppingCart /></el-icon>
-        <span>购物车</span>
-        <el-icon class="arrow"><ArrowRight /></el-icon>
-      </div>
-    </div>
-
-    <el-button v-if="isLogin" class="logout-btn" @click="handleLogout">退出登录</el-button>
   </div>
 </template>
 
 <script setup name="ShopMine">
 import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getToken } from '@/utils/auth'
 import { promptShopLogin } from '@/utils/shopAuth'
 import useUserStore from '@/store/modules/user'
 
+const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const isLogin = computed(() => !!getToken())
 const displayName = computed(() => userStore.nickName || userStore.name || '会员')
 const userName = computed(() => userStore.name || '')
 const avatarLetter = computed(() => (displayName.value || '客').charAt(0))
+const isOrdersActive = computed(() => route.path.startsWith('/shop/orders'))
+const isProfileActive = computed(() => route.path === '/shop/profile')
 
 onMounted(() => {
   if (getToken() && !userStore.name) {
@@ -81,7 +109,7 @@ onMounted(() => {
 })
 
 function onUserCardClick() {
-  if (!isLogin) {
+  if (!isLogin.value) {
     promptShopLogin(router, '/shop/mine', { scene: 'default' })
     return
   }
@@ -115,6 +143,9 @@ function handleLogout() {
 
 <style scoped lang="scss">
 .shop-mine { padding: 12px 0 24px; }
+.page-title { margin: 0 0 16px; font-size: 22px; color: #333; }
+.mine-body { display: block; }
+
 .user-card {
   display: flex; align-items: center; gap: 14px;
   background: linear-gradient(135deg, #ff6b35, #f7931e);
@@ -129,12 +160,13 @@ function handleLogout() {
 .name { font-size: 18px; font-weight: 600; }
 .sub { font-size: 12px; opacity: 0.9; margin-top: 4px; }
 .arrow { opacity: 0.85; }
+
 .order-panel {
   background: #fff; border-radius: 12px; padding: 14px 12px; margin-bottom: 12px;
 }
 .panel-head {
   display: flex; justify-content: space-between; align-items: center;
-  font-size: 15px; font-weight: 600; margin-bottom: 14px;
+  font-size: 15px; font-weight: 600; margin-bottom: 14px; cursor: pointer;
 }
 .panel-head .link {
   font-size: 12px; color: #999; font-weight: 400;
@@ -148,6 +180,7 @@ function handleLogout() {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
 .shortcut .el-icon { font-size: 22px; color: #ff6b35; }
+
 .menu-list { background: #fff; border-radius: 12px; overflow: hidden; }
 .menu-item {
   display: flex; align-items: center; gap: 10px;
@@ -157,7 +190,93 @@ function handleLogout() {
 .menu-item .el-icon:first-child { color: #ff6b35; font-size: 20px; }
 .menu-item span { flex: 1; }
 .logout-btn { width: 100%; margin-top: 20px; }
+
+.guest-panel {
+  background: #fff;
+  border-radius: 8px;
+  padding: 48px 24px;
+}
+
 @media (min-width: 769px) {
-  .shop-mine { padding-top: 24px; max-width: 720px; }
+  .shop-mine { padding: 24px 0 40px; }
+  .mine-body {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .mine-sidebar {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px 16px;
+    position: sticky;
+    top: 72px;
+  }
+  .sidebar-user {
+    text-align: center;
+    cursor: pointer;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .avatar-lg {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+  }
+  .sidebar-user .name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  .sidebar-user .sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+  }
+  .sidebar-nav { margin-top: 8px; }
+  .nav-item {
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+  }
+  .nav-item:hover {
+    color: #ff6b35;
+    background: #fff9f6;
+  }
+  .nav-item.active {
+    color: #ff6b35;
+    background: #fff5f0;
+    font-weight: 600;
+  }
+  .sidebar-logout {
+    width: 100%;
+    margin-top: 16px;
+  }
+  .mine-main { min-width: 0; }
+  .order-panel {
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 0;
+  }
+  .panel-head { font-size: 16px; margin-bottom: 20px; }
+  .order-shortcuts { gap: 8px; }
+  .shortcut {
+    font-size: 13px;
+    padding: 12px 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+  }
+  .shortcut:hover { background: #fff9f6; }
+  .shortcut .el-icon { font-size: 28px; }
 }
 </style>

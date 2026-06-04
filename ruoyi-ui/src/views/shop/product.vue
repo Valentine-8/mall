@@ -4,21 +4,21 @@
       <div class="product-layout">
         <div class="hero-pic">{{ product.productName?.charAt(0) }}</div>
         <div class="detail-card">
-          <div class="price">??{{ product.price }}</div>
+          <div class="price">￥{{ product.price }}</div>
           <h2>{{ product.productName }}</h2>
-          <p class="meta">??? {{ product.stock }} &middot; ???? {{ product.saleCount || 0 }}</p>
-          <p class="desc">{{ product.description || '????????' }}</p>
-          <div class="qty-row"><span>????</span>
+          <p class="meta">库存 {{ product.stock }} &middot; 销量 {{ product.saleCount || 0 }}</p>
+          <p class="desc">{{ product.description || '暂无详细描述' }}</p>
+          <div class="qty-row"><span>数量</span>
             <el-input-number v-model="quantity" :min="1" :max="product.stock" /></div>
           <div class="action-row shop-only-pc">
-            <el-button type="warning" plain size="large" @click="addCart">??????</el-button>
-            <el-button type="danger" size="large" @click="buyNow">????????</el-button>
+            <el-button type="warning" plain size="large" @click="addCart">加入购物车</el-button>
+            <el-button type="danger" size="large" @click="buyNow">立即购买</el-button>
           </div>
         </div>
       </div>
       <div class="bottom-bar shop-fixed-bar shop-only-mobile">
-        <el-button type="warning" plain @click="addCart">??????</el-button>
-        <el-button type="danger" @click="buyNow">????????</el-button>
+        <el-button type="warning" plain @click="addCart">加入购物车</el-button>
+        <el-button type="danger" @click="buyNow">立即购买</el-button>
       </div>
     </template>
   </div>
@@ -41,13 +41,13 @@ function loadProduct() {
     loading.value = false
   }).catch(() => {
     loading.value = false
-    proxy.$modal.msgError('?????????')
+    proxy.$modal.msgError('商品不存在或已下架')
     router.replace('/shop/home')
   })
 }
 async function addCart() {
   if (!(await ensureShopLogin(router, route.fullPath, { scene: 'addCart' }))) return
-  addToCart(product.value.productId, quantity.value).then(() => proxy.$modal.msgSuccess('???????'))
+  addToCart(product.value.productId, quantity.value).then(() => proxy.$modal.msgSuccess('已加入购物车'))
 }
 async function buyNow() {
   const checkoutPath = buildBuyNowCheckoutPath(product.value.productId, quantity.value)
@@ -56,7 +56,7 @@ async function buyNow() {
     const cartIds = await prepareBuyNowCartIds(product.value.productId, quantity.value)
     router.push({ path: '/shop/checkout', query: { cartIds: cartIds.join(',') } })
   } catch (e) {
-    proxy.$modal.msgError(e.message || '�޷��������')
+    proxy.$modal.msgError(e.message || '无法进入结算')
   }
 }
 loadProduct()

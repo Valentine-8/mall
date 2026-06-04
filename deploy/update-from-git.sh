@@ -1,7 +1,7 @@
 #!/bin/bash
 # 在服务器 ~/mall 目录执行：./deploy/update-from-git.sh
 # 要求：已安装 git、JDK17、Maven、Node18+
-# 2核4G：编译前 stop 容器、限制 Maven/Node 内存；编完后 up -d（见 docs/git-deploy.md 第二节）
+# 可选：服务器端编译时使用。当前推荐本机编译+scp，见 docs/git-deploy.md 附录 B
 set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

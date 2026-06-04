@@ -2,19 +2,19 @@
   <div class="shop-page-bg">
     <header class="shop-topnav shop-only-pc flex">
       <div class="shop-content topnav-inner">
-        <router-link to="/shop/home" class="brand">ÈôÒÀÉÌ³Ç</router-link>
+        <router-link to="/shop/home" class="brand">è‹¥ä¾å•†åŸ</router-link>
         <nav class="topnav-links">
-          <router-link to="/shop/home" class="topnav-item" active-class="active">Ê×Ò³</router-link>
+          <router-link to="/shop/home" class="topnav-item" active-class="active">é¦–é¡µ</router-link>
           <router-link to="/shop/cart" custom v-slot="{ navigate, isActive }">
-            <span class="topnav-item" :class="{ active: isActive }" @click="shopNavClick(router, '/shop/cart', navigate)">¹ºÎï³µ</span>
+            <span class="topnav-item" :class="{ active: isActive }" @click="shopNavClick(router, '/shop/cart', navigate)">è´­ç‰©è½¦</span>
           </router-link>
-          <router-link to="/shop/mine" class="topnav-item" active-class="active">ÎÒµÄ</router-link>
+          <router-link to="/shop/mine" class="topnav-item" active-class="active">æˆ‘çš„</router-link>
         </nav>
         <div v-if="isLogin" class="topnav-user">
           <span class="user-name">{{ displayName }}</span>
-          <el-button link class="topnav-login" @click="handleLogout">ÍË³ö</el-button>
+          <el-button link class="topnav-login" @click="handleLogout">é€€å‡º</el-button>
         </div>
-        <router-link v-else :to="loginTo" class="topnav-login">µÇÂ¼</router-link>
+        <router-link v-else :to="loginTo" class="topnav-login">ç™»å½•</router-link>
       </div>
     </header>
 
@@ -24,14 +24,14 @@
         <span class="shop-title">{{ pageTitle }}</span>
         <div v-if="isLogin" class="header-user">
           <span class="user-name">{{ displayName }}</span>
-          <el-button link class="shop-login-link" @click="handleLogout">ÍË³ö</el-button>
+          <el-button link class="shop-login-link" @click="handleLogout">é€€å‡º</el-button>
         </div>
-        <router-link v-else :to="loginTo" class="shop-login-link">µÇÂ¼</router-link>
+        <router-link v-else :to="loginTo" class="shop-login-link">ç™»å½•</router-link>
       </header>
 
       <div class="shop-pc-subhead shop-only-pc" v-if="showSubPage">
         <div class="shop-content">
-          <el-button link type="primary" @click="goBack"><el-icon><ArrowLeft /></el-icon> ·µ»Ø</el-button>
+          <el-button link type="primary" @click="goBack"><el-icon><ArrowLeft /></el-icon> è¿”å›</el-button>
           <span class="sub-title">{{ pageTitle }}</span>
         </div>
       </div>
@@ -42,15 +42,15 @@
 
       <nav class="shop-tabbar shop-only-mobile" v-if="showMainTab">
         <router-link to="/shop/home" class="tab-item" active-class="active">
-          <el-icon><HomeFilled /></el-icon><span>Ê×Ò³</span>
+          <el-icon><HomeFilled /></el-icon><span>é¦–é¡µ</span>
         </router-link>
         <router-link to="/shop/cart" custom v-slot="{ navigate, isActive }">
           <span class="tab-item" :class="{ active: isActive }" @click="shopNavClick(router, '/shop/cart', navigate)">
-            <el-icon><ShoppingCart /></el-icon><span>¹ºÎï³µ</span>
+            <el-icon><ShoppingCart /></el-icon><span>è´­ç‰©è½¦</span>
           </span>
         </router-link>
         <router-link to="/shop/mine" class="tab-item" active-class="active">
-          <el-icon><User /></el-icon><span>ÎÒµÄ</span>
+          <el-icon><User /></el-icon><span>æˆ‘çš„</span>
         </router-link>
       </nav>
     </div>
@@ -68,13 +68,13 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 const isLogin = computed(() => !!getToken())
-const displayName = computed(() => userStore.nickName || userStore.name || '»áÔ±')
+const displayName = computed(() => userStore.nickName || userStore.name || 'ä¼šå‘˜')
 const loginTo = computed(() => ({ path: '/login', query: { redirect: route.fullPath } }))
 
 const mainTabRoutes = ['/shop/home', '/shop/cart', '/shop/mine']
 const showMainTab = computed(() => mainTabRoutes.includes(route.path))
 const showSubPage = computed(() => !showMainTab.value)
-const pageTitle = computed(() => route.meta?.title || 'ÉÌ³Ç')
+const pageTitle = computed(() => route.meta?.title || 'å•†åŸ')
 
 onMounted(() => {
   if (getToken() && !userStore.name) {

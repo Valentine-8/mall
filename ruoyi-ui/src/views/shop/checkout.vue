@@ -1,44 +1,44 @@
 <template>
   <div class="shop-checkout shop-content">
-    <h2 class="page-title shop-only-pc">Ìá½»¶©µ¥</h2>
-    <el-empty v-if="!isLogin" description="ÇëÏÈµÇÂ¼ºóÔÙ½áËã¶©µ¥" class="guest-empty">
-      <el-button type="primary" @click="goLogin">È¥µÇÂ¼</el-button>
+    <h2 class="page-title shop-only-pc">æäº¤è®¢å•</h2>
+    <el-empty v-if="!isLogin" description="è¯·å…ˆç™»å½•åå†ç»“ç®—è®¢å•" class="guest-empty">
+      <el-button type="primary" @click="goLogin">å»ç™»å½•</el-button>
     </el-empty>
-    <div v-else-if="preparing" class="preparing" v-loading="true" element-loading-text="ÕıÔÚ×¼±¸¶©µ¥..." />
-    <el-empty v-else-if="!ready" description="Ã»ÓĞ¿É½áËãµÄÉÌÆ·">
-      <el-button type="primary" @click="goCart">È¥¹ºÎï³µ</el-button>
-      <el-button @click="goHome">È¥¹ä¹ä</el-button>
+    <div v-else-if="preparing" class="preparing" v-loading="true" element-loading-text="æ­£åœ¨å‡†å¤‡è®¢å•..." />
+    <el-empty v-else-if="!ready" description="æ²¡æœ‰å¯ç»“ç®—çš„å•†å“">
+      <el-button type="primary" @click="goCart">å»è´­ç‰©è½¦</el-button>
+      <el-button @click="goHome">å»é€›é€›</el-button>
     </el-empty>
     <template v-else>
     <div v-if="settleItems.length" class="order-preview">
-      <h3>ÉÌÆ·Çåµ¥</h3>
+      <h3>å•†å“æ¸…å•</h3>
       <div v-for="item in settleItems" :key="item.cartId" class="preview-item">
         <span class="name">{{ item.productName }}</span>
-        <span class="meta">x{{ item.quantity }} ¡¤ £¤{{ item.price }}</span>
+        <span class="meta">x{{ item.quantity }} Â· ï¿¥{{ item.price }}</span>
       </div>
     </div>
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="checkout-form">
       <div class="section">
-        <h3>ÊÕ»õĞÅÏ¢</h3>
-        <el-form-item label="ÊÕ»õÈË" prop="receiverName">
-          <el-input v-model="form.receiverName" placeholder="ÇëÊäÈëÊÕ»õÈË" />
+        <h3>æ”¶è´§ä¿¡æ¯</h3>
+        <el-form-item label="æ”¶è´§äºº" prop="receiverName">
+          <el-input v-model="form.receiverName" placeholder="è¯·è¾“å…¥æ”¶è´§äºº" />
         </el-form-item>
-        <el-form-item label="ÊÖ»úºÅ" prop="receiverPhone">
-          <el-input v-model="form.receiverPhone" placeholder="ÇëÊäÈëÊÖ»úºÅ" />
+        <el-form-item label="æ‰‹æœºå·" prop="receiverPhone">
+          <el-input v-model="form.receiverPhone" placeholder="è¯·è¾“å…¥æ‰‹æœºå·" />
         </el-form-item>
-        <el-form-item label="ÏêÏ¸µØÖ·" prop="receiverAddress">
-          <el-input v-model="form.receiverAddress" type="textarea" :rows="2" placeholder="ÇëÊäÈëµØÖ·" />
+        <el-form-item label="è¯¦ç»†åœ°å€" prop="receiverAddress">
+          <el-input v-model="form.receiverAddress" type="textarea" :rows="2" placeholder="è¯·è¾“å…¥åœ°å€" />
         </el-form-item>
-        <el-form-item label="±¸×¢">
-          <el-input v-model="form.remark" placeholder="Ñ¡Ìî" />
+        <el-form-item label="å¤‡æ³¨">
+          <el-input v-model="form.remark" placeholder="é€‰å¡«" />
         </el-form-item>
       </div>
     </el-form>
     <div class="submit-bar shop-fixed-bar shop-only-mobile">
-      <el-button type="danger" size="large" :loading="submitting" @click="submitOrder" style="width:100%">Ìá½»¶©µ¥</el-button>
+      <el-button type="danger" size="large" :loading="submitting" @click="submitOrder" style="width:100%">æäº¤è®¢å•</el-button>
     </div>
     <div class="submit-panel shop-only-pc">
-      <el-button type="danger" size="large" :loading="submitting" @click="submitOrder">Ìá½»¶©µ¥</el-button>
+      <el-button type="danger" size="large" :loading="submitting" @click="submitOrder">æäº¤è®¢å•</el-button>
     </div>
     </template>
   </div>
@@ -67,9 +67,9 @@ function goCart() { router.replace('/shop/cart') }
 function goHome() { router.replace('/shop/home') }
 const form = ref({ receiverName: '', receiverPhone: '', receiverAddress: '', remark: '', cartIds: [] })
 const rules = {
-  receiverName: [{ required: true, message: 'ÇëÊäÈëÊÕ»õÈË', trigger: 'blur' }],
-  receiverPhone: [{ required: true, message: 'ÇëÊäÈëÊÖ»úºÅ', trigger: 'blur' }],
-  receiverAddress: [{ required: true, message: 'ÇëÊäÈëµØÖ·', trigger: 'blur' }]
+  receiverName: [{ required: true, message: 'è¯·è¾“å…¥æ”¶è´§äºº', trigger: 'blur' }],
+  receiverPhone: [{ required: true, message: 'è¯·è¾“å…¥æ‰‹æœºå·', trigger: 'blur' }],
+  receiverAddress: [{ required: true, message: 'è¯·è¾“å…¥åœ°å€', trigger: 'blur' }]
 }
 
 async function loadSettlePreview() {
@@ -105,7 +105,7 @@ async function initCheckout() {
     ready.value = settleItems.value.length > 0
   } catch (e) {
     ready.value = false
-    proxy.$modal.msgError(e.message || '¼ÓÔØ½áËãĞÅÏ¢Ê§°Ü')
+    proxy.$modal.msgError(e.message || 'åŠ è½½ç»“ç®—ä¿¡æ¯å¤±è´¥')
   } finally {
     preparing.value = false
   }
@@ -113,7 +113,7 @@ async function initCheckout() {
 
 function submitOrder() {
   if (!form.value.cartIds.length) {
-    proxy.$modal.msgWarning('ÇëÏÈÑ¡ÔñÒª½áËãµÄÉÌÆ·')
+    proxy.$modal.msgWarning('è¯·å…ˆé€‰æ‹©è¦ç»“ç®—çš„å•†å“')
     return
   }
   proxy.$refs.formRef.validate(valid => {
@@ -121,8 +121,8 @@ function submitOrder() {
     submitting.value = true
     checkoutOrder(form.value).then(res => {
       const order = res.data
-      proxy.$modal.confirm('¶©µ¥ÒÑ´´½¨£¬ÊÇ·ñÁ¢¼´Ö§¸¶£¿').then(() => payOrder(order.orderId)).then(() => {
-        proxy.$modal.msgSuccess('Ö§¸¶³É¹¦')
+      proxy.$modal.confirm('è®¢å•å·²åˆ›å»ºï¼Œæ˜¯å¦ç«‹å³æ”¯ä»˜ï¼Ÿ').then(() => payOrder(order.orderId)).then(() => {
+        proxy.$modal.msgSuccess('æ”¯ä»˜æˆåŠŸ')
         router.replace('/shop/orders/' + order.orderId)
       }).catch(() => router.replace('/shop/orders/' + order.orderId))
         .finally(() => { submitting.value = false })

@@ -1,5 +1,6 @@
 <template>
   <div class="shop-profile shop-content">
+    <h2 class="page-title shop-only-pc">我的资料</h2>
     <el-empty v-if="!isLogin" description="登录后编辑个人资料" class="guest-empty">
       <el-button type="primary" @click="goLogin">去登录</el-button>
     </el-empty>
@@ -97,13 +98,19 @@ onMounted(loadProfile)
 
 <style scoped lang="scss">
 .shop-profile { padding: 12px 0 24px; }
+.page-title { margin: 0 0 16px; font-size: 22px; color: #333; }
 .profile-card {
   background: #fff; border-radius: 12px; padding: 16px;
 }
 .save-btn { width: 100%; margin-top: 8px; }
 .guest-empty { padding: 48px 16px; }
 @media (min-width: 769px) {
-  .shop-profile { padding-top: 24px; }
-  .profile-card { max-width: 520px; padding: 24px; }
+  .shop-profile { padding: 24px 0 40px; }
+  .profile-card {
+    max-width: 640px;
+    padding: 32px;
+    border-radius: 8px;
+  }
+  .save-btn { width: auto; min-width: 160px; }
 }
 </style>
