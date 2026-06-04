@@ -27,7 +27,10 @@
         </div>
         <div v-loading="loading" class="product-grid">
           <div v-for="p in products" :key="p.productId" class="product-card" @click="goDetail(p.productId)">
-            <div class="pic">{{ p.productName?.charAt(0) }}</div>
+            <div class="pic">
+              <img v-if="productThumb(p)" :src="productThumb(p)" :alt="p.productName" />
+              <span v-else>{{ p.productName?.charAt(0) }}</span>
+            </div>
             <div class="info">
               <div class="name">{{ p.productName }}</div>
               <div class="price">￥{{ p.price }}</div>
@@ -46,6 +49,7 @@
 <script setup name="ShopHome">
 import { listAppCategory } from '@/api/app/category'
 import { listAppProduct } from '@/api/app/product'
+import { productCoverPic, resolveShopMedia } from '@/utils/shopMedia'
 
 const router = useRouter()
 const categories = ref([])
@@ -72,6 +76,9 @@ function selectCategory(categoryId) {
 }
 function goDetail(productId) {
   router.push('/shop/product/' + productId)
+}
+function productThumb(p) {
+  return resolveShopMedia(productCoverPic(p))
 }
 loadCategories()
 loadProducts()
@@ -105,9 +112,24 @@ loadProducts()
 }
 .product-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
 .pic {
-  height: 120px; background: linear-gradient(145deg, #ffe8de, #fff5f0);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px; color: #ff6b35; font-weight: 700;
+  height: 150px;
+  background: #f7f7f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  font-size: 36px;
+  color: #ff6b35;
+  font-weight: 700;
+  overflow: hidden;
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
 }
 .info { padding: 10px; }
 .name {
@@ -163,6 +185,6 @@ loadProducts()
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
   }
-  .pic { height: 180px; font-size: 48px; }
+  .pic { height: 200px; padding: 12px; }
 }
 </style>

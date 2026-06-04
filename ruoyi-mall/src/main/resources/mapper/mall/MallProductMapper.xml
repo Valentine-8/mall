@@ -9,6 +9,8 @@
         <result property="productName" column="product_name"/>
         <result property="productSn" column="product_sn"/>
         <result property="pic" column="pic"/>
+        <result property="album" column="album"/>
+        <result property="video" column="video"/>
         <result property="price" column="price"/>
         <result property="stock" column="stock"/>
         <result property="saleCount" column="sale_count"/>
@@ -23,7 +25,7 @@
     </resultMap>
 
     <sql id="selectProductVo">
-        select p.product_id, p.category_id, c.category_name, p.product_name, p.product_sn, p.pic,
+        select p.product_id, p.category_id, c.category_name, p.product_name, p.product_sn, p.pic, p.album, p.video,
                p.price, p.stock, p.sale_count, p.status, p.description, p.del_flag,
                p.create_by, p.create_time, p.update_by, p.update_time, p.remark
         from mall_product p
@@ -57,12 +59,12 @@
 
     <insert id="insertMallProduct" parameterType="MallProduct" useGeneratedKeys="true" keyProperty="productId">
         insert into mall_product (
-            category_id, product_name, product_sn, pic, price, stock, sale_count, status, description, del_flag,
+            category_id, product_name, product_sn, pic, album, video, price, stock, sale_count, status, description, del_flag,
             <if test="remark != null">remark,</if>
             <if test="createBy != null">create_by,</if>
             create_time
         ) values (
-            #{categoryId}, #{productName}, #{productSn}, #{pic}, #{price}, #{stock},
+            #{categoryId}, #{productName}, #{productSn}, #{pic}, #{album}, #{video}, #{price}, #{stock},
             #{saleCount}, #{status}, #{description}, '0',
             <if test="remark != null">#{remark},</if>
             <if test="createBy != null">#{createBy},</if>
@@ -77,6 +79,8 @@
             <if test="productName != null">product_name = #{productName},</if>
             <if test="productSn != null">product_sn = #{productSn},</if>
             <if test="pic != null">pic = #{pic},</if>
+            <if test="album != null">album = #{album},</if>
+            <if test="video != null">video = #{video},</if>
             <if test="price != null">price = #{price},</if>
             <if test="stock != null">stock = #{stock},</if>
             <if test="saleCount != null">sale_count = #{saleCount},</if>

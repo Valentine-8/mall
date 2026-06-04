@@ -88,14 +88,14 @@
 <script setup name="ShopMine">
 import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getToken } from '@/utils/auth'
+import { ElMessage } from 'element-plus'
 import { promptShopLogin } from '@/utils/shopAuth'
 import useUserStore from '@/store/modules/user'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
-const isLogin = computed(() => !!getToken())
+const isLogin = computed(() => !!userStore.token)
 const displayName = computed(() => userStore.nickName || userStore.name || '会员')
 const userName = computed(() => userStore.name || '')
 const avatarLetter = computed(() => (displayName.value || '客').charAt(0))
@@ -103,7 +103,7 @@ const isOrdersActive = computed(() => route.path.startsWith('/shop/orders'))
 const isProfileActive = computed(() => route.path === '/shop/profile')
 
 onMounted(() => {
-  if (getToken() && !userStore.name) {
+  if (userStore.token && !userStore.name) {
     userStore.getInfo().catch(() => {})
   }
 })
@@ -117,7 +117,7 @@ function onUserCardClick() {
 }
 
 function goOrders(status) {
-  if (!getToken()) {
+  if (!userStore.token) {
     promptShopLogin(router, status ? `/shop/orders?status=${status}` : '/shop/orders', { scene: 'orders' })
     return
   }
@@ -125,7 +125,7 @@ function goOrders(status) {
 }
 
 function goProfile() {
-  if (!getToken()) {
+  if (!userStore.token) {
     promptShopLogin(router, '/shop/profile', { scene: 'default' })
     return
   }
@@ -137,7 +137,9 @@ function goCart() {
 }
 
 function handleLogout() {
-  userStore.logOut().then(() => router.replace('/shop/mine'))
+  userStore.logOut().then(() => {
+    ElMessage.success('已退出登录')
+  })
 }
 </script>
 

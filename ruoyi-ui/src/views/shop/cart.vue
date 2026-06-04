@@ -39,20 +39,21 @@
 
 <script setup name="ShopCart">
 import { listCart, updateCartChecked, updateCartQuantity, removeCart } from '@/api/app/cart'
-import { getToken } from '@/utils/auth'
 import { promptShopLogin } from '@/utils/shopAuth'
+import useUserStore from '@/store/modules/user'
 const router = useRouter()
 const { proxy } = getCurrentInstance()
+const userStore = useUserStore()
 const cartList = ref([])
 const loading = ref(true)
-const isLogin = computed(() => !!getToken())
+const isLogin = computed(() => !!userStore.token)
 function goLogin() { promptShopLogin(router, '/shop/cart', { scene: 'cart' }) }
 const checkedCount = computed(() => cartList.value.filter(i => i.checked === '1').length)
 const totalAmount = computed(() => cartList.value.filter(i => i.checked === '1')
   .reduce((sum, i) => sum + Number(i.price) * i.quantity, 0).toFixed(2))
 const allChecked = computed(() => cartList.value.length > 0 && cartList.value.every(i => i.checked === '1'))
 function loadCart() {
-  if (!getToken()) { loading.value = false; return }
+  if (!userStore.token) { loading.value = false; return }
   loading.value = true
   listCart().then(res => {
     cartList.value = (res.data || []).map(i => ({ ...i, checked: i.checked || '0' }))
@@ -70,7 +71,7 @@ function removeItem(item) {
 }
 function goProduct(id) { router.push('/shop/product/' + id) }
 function goCheckout() {
-  if (!getToken()) { promptShopLogin(router, '/shop/checkout', { scene: 'checkout' }); return }
+  if (!userStore.token) { promptShopLogin(router, '/shop/checkout', { scene: 'checkout' }); return }
   const ids = cartList.value.filter(i => i.checked === '1').map(i => i.cartId)
   router.push({ path: '/shop/checkout', query: { cartIds: ids.join(',') } })
 }

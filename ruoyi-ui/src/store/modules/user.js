@@ -20,6 +20,22 @@ const useUserStore = defineStore(
       permissions: []
     }),
     actions: {
+      /** Sync cookie + store token (social login, callback, etc.) */
+      applyToken(token) {
+        setToken(token)
+        this.token = token || ''
+      },
+      /** Clear local session; always run on logout even if API fails */
+      clearSession() {
+        this.token = ''
+        this.id = ''
+        this.name = ''
+        this.nickName = ''
+        this.avatar = ''
+        this.roles = []
+        this.permissions = []
+        removeToken()
+      },
       // 登录
       login(userInfo) {
         const username = userInfo.username.trim()
@@ -28,8 +44,7 @@ const useUserStore = defineStore(
         const uuid = userInfo.uuid
         return new Promise((resolve, reject) => {
           login(username, password, code, uuid).then(res => {
-            setToken(res.token)
-            this.token = res.token
+            this.applyToken(res.token)
             useLockStore().unlockScreen()
             resolve()
           }).catch(error => {
@@ -75,18 +90,10 @@ const useUserStore = defineStore(
           })
         })
       },
-      // 退出系统
+      // 退出系统（本地状态必须清掉，避免商城仍显示上一账号）
       logOut() {
-        return new Promise((resolve, reject) => {
-          logout(this.token).then(() => {
-            this.token = ''
-            this.roles = []
-            this.permissions = []
-            removeToken()
-            resolve()
-          }).catch(error => {
-            reject(error)
-          })
+        return logout().catch(() => {}).finally(() => {
+          this.clearSession()
         })
       }
     }

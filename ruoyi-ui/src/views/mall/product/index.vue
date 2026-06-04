@@ -39,6 +39,12 @@
     <el-table v-loading="loading" :data="productList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="ID" align="center" prop="productId" width="70" />
+      <el-table-column label="主图" align="center" width="80">
+        <template #default="scope">
+          <image-preview v-if="scope.row.pic" :src="scope.row.pic" :width="56" :height="56" fit="contain" />
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
       <el-table-column label="商品名称" align="center" prop="productName" :show-overflow-tooltip="true" />
       <el-table-column label="分类" align="center" prop="categoryName" width="120" />
       <el-table-column label="货号" align="center" prop="productSn" width="120" />
@@ -62,7 +68,7 @@
 
     <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
 
-    <el-dialog :title="title" v-model="open" width="680px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="760px" append-to-body>
       <el-form ref="productRef" :model="form" :rules="rules" label-width="90px">
         <el-row>
           <el-col :span="12">
@@ -100,8 +106,18 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="主图URL" prop="pic">
-              <el-input v-model="form.pic" placeholder="图片地址" />
+            <el-form-item label="商品主图" prop="pic">
+              <image-upload v-model="form.pic" :limit="1" :file-size="5" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="相册图片" prop="album">
+              <image-upload v-model="form.album" :limit="8" :file-size="5" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="商品视频" prop="video">
+              <file-upload v-model="form.video" :limit="1" :file-size="50" :file-type="['mp4', 'avi', 'rmvb']" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -175,6 +191,8 @@ function reset() {
     productName: undefined,
     productSn: undefined,
     pic: undefined,
+    album: undefined,
+    video: undefined,
     price: 0,
     stock: 0,
     saleCount: 0,

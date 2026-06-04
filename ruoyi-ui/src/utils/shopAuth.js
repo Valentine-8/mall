@@ -1,5 +1,5 @@
 import { ElMessageBox } from 'element-plus'
-import { getToken } from '@/utils/auth'
+import useUserStore from '@/store/modules/user'
 
 const SHOP_AUTH_PATHS = ['/shop/cart', '/shop/orders', '/shop/checkout', '/shop/profile']
 
@@ -37,7 +37,7 @@ export function promptShopLogin(router, redirect, options = {}) {
  * @returns {Promise<boolean>} true if already logged in
  */
 export function ensureShopLogin(router, redirect, options) {
-  if (getToken()) {
+  if (useUserStore().token) {
     return Promise.resolve(true)
   }
   return promptShopLogin(router, redirect, options).then(() => false)
@@ -50,7 +50,7 @@ export function isShopAuthPath(path) {
 }
 
 export function shopNavClick(router, path, navigate) {
-  if (!getToken() && isShopAuthPath(path)) {
+  if (!useUserStore().token && isShopAuthPath(path)) {
     const scene = path.includes('cart') ? 'cart' : path.includes('order') ? 'orders' : 'checkout'
     promptShopLogin(router, path, { scene })
     return

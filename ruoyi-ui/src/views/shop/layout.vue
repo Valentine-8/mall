@@ -60,14 +60,14 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getToken } from '@/utils/auth'
+import { ElMessage } from 'element-plus'
 import { shopNavClick } from '@/utils/shopAuth'
 import useUserStore from '@/store/modules/user'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
-const isLogin = computed(() => !!getToken())
+const isLogin = computed(() => !!userStore.token)
 const displayName = computed(() => userStore.nickName || userStore.name || '会员')
 const loginTo = computed(() => ({ path: '/login', query: { redirect: route.fullPath } }))
 
@@ -77,7 +77,7 @@ const showSubPage = computed(() => !showMainTab.value)
 const pageTitle = computed(() => route.meta?.title || '商城')
 
 onMounted(() => {
-  if (getToken() && !userStore.name) {
+  if (userStore.token && !userStore.name) {
     userStore.getInfo().catch(() => {})
   }
 })
@@ -117,7 +117,12 @@ function goBack() {
 }
 
 function handleLogout() {
-  userStore.logOut().then(() => router.push('/shop/mine'))
+  userStore.logOut().then(() => {
+    ElMessage.success('已退出登录')
+    if (route.path !== '/shop/mine') {
+      router.push('/shop/mine')
+    }
+  })
 }
 </script>
 

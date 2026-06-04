@@ -32,6 +32,7 @@ onMounted(async () => {
     return
   }
   setToken(token)
+  userStore.applyToken(token)
   try {
     await userStore.getInfo()
     router.replace(redirect)

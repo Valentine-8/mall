@@ -34,14 +34,12 @@
 
 <script setup name="ShopProfile">
 import { getUserProfile, updateUserProfile } from '@/api/system/user'
-import { getToken } from '@/utils/auth'
-import { promptShopLogin } from '@/utils/shopAuth'
 import useUserStore from '@/store/modules/user'
 
 const router = useRouter()
 const { proxy } = getCurrentInstance()
 const userStore = useUserStore()
-const isLogin = computed(() => !!getToken())
+const isLogin = computed(() => !!userStore.token)
 const loading = ref(true)
 const saving = ref(false)
 const form = ref({ nickName: '', phonenumber: '', email: '', sex: '0', userName: '' })
@@ -59,7 +57,7 @@ function goLogin() {
 }
 
 function loadProfile() {
-  if (!getToken()) {
+  if (!userStore.token) {
     loading.value = false
     return
   }

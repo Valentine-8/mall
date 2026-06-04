@@ -46,17 +46,18 @@
 <script setup name="ShopCheckout">
 import { checkoutOrder, payOrder } from '@/api/app/order'
 import { listCart } from '@/api/app/cart'
-import { getToken } from '@/utils/auth'
 import { promptShopLogin } from '@/utils/shopAuth'
 import { prepareBuyNowCartIds, parseCartIdsFromQuery, buildBuyNowCheckoutPath } from '@/utils/shopCheckout'
+import useUserStore from '@/store/modules/user'
 const route = useRoute()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
+const userStore = useUserStore()
 const submitting = ref(false)
 const preparing = ref(false)
 const ready = ref(false)
 const settleItems = ref([])
-const isLogin = computed(() => !!getToken())
+const isLogin = computed(() => !!userStore.token)
 function goLogin() {
   const redirect = route.query.buyNow === '1' && route.query.productId
     ? buildBuyNowCheckoutPath(route.query.productId, route.query.quantity)
@@ -80,7 +81,7 @@ async function loadSettlePreview() {
 }
 
 async function initCheckout() {
-  if (!getToken()) {
+  if (!userStore.token) {
     ready.value = false
     return
   }

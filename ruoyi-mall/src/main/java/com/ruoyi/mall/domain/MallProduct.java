@@ -21,6 +21,8 @@ public class MallProduct extends BaseEntity
     private String productName;
     private String productSn;
     private String pic;
+    private String album;
+    private String video;
     private BigDecimal price;
     private Integer stock;
     private Integer saleCount;
@@ -88,6 +90,26 @@ public class MallProduct extends BaseEntity
     public void setPic(String pic)
     {
         this.pic = pic;
+    }
+
+    public String getAlbum()
+    {
+        return album;
+    }
+
+    public void setAlbum(String album)
+    {
+        this.album = album;
+    }
+
+    public String getVideo()
+    {
+        return video;
+    }
+
+    public void setVideo(String video)
+    {
+        this.video = video;
     }
 
     @NotNull(message = "销售价格不能为空")

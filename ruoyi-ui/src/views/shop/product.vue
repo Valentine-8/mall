@@ -2,7 +2,15 @@
   <div class="shop-product shop-content" v-loading="loading">
     <template v-if="product">
       <div class="product-layout">
-        <div class="hero-pic">{{ product.productName?.charAt(0) }}</div>
+        <div class="media-panel">
+          <shop-product-gallery
+            v-if="albumUrls.length"
+            :urls="albumUrls"
+            :stage-height="stageHeight"
+          />
+          <div v-else class="hero-pic">{{ product.productName?.charAt(0) }}</div>
+          <video v-if="videoUrl" class="product-video" :src="videoUrl" controls preload="metadata" />
+        </div>
         <div class="detail-card">
           <div class="price">￥{{ product.price }}</div>
           <h2>{{ product.productName }}</h2>
@@ -24,16 +32,30 @@
   </div>
 </template>
 <script setup name="ShopProduct">
+import ShopProductGallery from '@/components/ShopProductGallery/index.vue'
 import { getAppProduct } from '@/api/app/product'
 import { addToCart } from '@/api/app/cart'
 import { ensureShopLogin } from '@/utils/shopAuth'
 import { buildBuyNowCheckoutPath, prepareBuyNowCartIds } from '@/utils/shopCheckout'
+import { productCoverPic, resolveShopMedia, resolveShopMediaList } from '@/utils/shopMedia'
 const route = useRoute()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
 const product = ref(null)
 const loading = ref(true)
 const quantity = ref(1)
+const stageHeight = ref('320px')
+const albumUrls = computed(() => {
+  if (!product.value) return []
+  const urls = resolveShopMediaList(product.value.album)
+  const main = resolveShopMedia(productCoverPic(product.value))
+  if (main && !urls.includes(main)) urls.unshift(main)
+  return urls
+})
+const videoUrl = computed(() => product.value ? resolveShopMedia(product.value.video) : '')
+function updateStageHeight() {
+  stageHeight.value = window.innerWidth >= 769 ? '420px' : '320px'
+}
 function loadProduct() {
   loading.value = true
   getAppProduct(route.params.productId).then(res => {
@@ -59,16 +81,25 @@ async function buyNow() {
     proxy.$modal.msgError(e.message || '无法进入结算')
   }
 }
+onMounted(() => {
+  updateStageHeight()
+  window.addEventListener('resize', updateStageHeight)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateStageHeight)
+})
 loadProduct()
 </script>
 <style scoped lang="scss">
 .shop-product { padding: 12px 0 80px; }
 .product-layout { display: block; }
+.media-panel { display: flex; flex-direction: column; gap: 12px; }
 .hero-pic {
   height: 260px; background: linear-gradient(145deg, #ffe8de, #fff5f0);
   display: flex; align-items: center; justify-content: center;
   font-size: 72px; color: #ff6b35; font-weight: 700; border-radius: 12px;
 }
+.product-video { width: 100%; max-height: 240px; border-radius: 12px; background: #000; }
 .detail-card { margin: -16px 0 0; background: #fff; border-radius: 12px; padding: 16px; }
 .price { color: #ff6b35; font-size: 24px; font-weight: 700; }
 .detail-card h2 { margin: 8px 0; font-size: 18px; }
@@ -92,7 +123,7 @@ loadProduct()
     display: grid; grid-template-columns: 420px 1fr; gap: 32px;
     background: #fff; border-radius: 8px; padding: 24px;
   }
-  .hero-pic { height: 420px; margin: 0; }
+  .product-video { max-height: 320px; }
   .detail-card { margin: 0; padding: 0; }
 }
 </style>

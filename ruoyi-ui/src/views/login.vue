@@ -92,7 +92,6 @@ import { getCodeImg } from "@/api/login"
 import { getSocialAuthorize, getSocialConfig, socialMockLogin } from "@/api/social"
 import Cookies from "js-cookie"
 import { encrypt, decrypt } from "@/utils/jsencrypt"
-import { setToken } from "@/utils/auth"
 import useUserStore from '@/store/modules/user'
 import defaultSettings from '@/settings'
 
@@ -147,7 +146,7 @@ function handleSocialLogin(type) {
     const d = res.data || {}
     if (d.mock) {
       return socialMockLogin(type, target).then(r => {
-        setToken(r.token)
+        userStore.applyToken(r.token)
         return userStore.getInfo().then(() => {
           router.push({ path: target })
         })

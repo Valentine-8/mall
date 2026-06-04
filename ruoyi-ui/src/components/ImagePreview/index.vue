@@ -1,10 +1,12 @@
 <template>
   <el-image
     :src="`${realSrc}`"
-    fit="cover"
+    :fit="fit"
     :style="`width:${realWidth};height:${realHeight};`"
     :preview-src-list="realSrcList"
+    :initial-index="0"
     preview-teleported
+    hide-on-click-modal
   >
     <template #error>
       <div class="image-slot">
@@ -21,6 +23,10 @@ const props = defineProps({
   src: {
     type: String,
     default: ""
+  },
+  fit: {
+    type: String,
+    default: "cover"
   },
   width: {
     type: [Number, String],

@@ -53,17 +53,18 @@
 
 <script setup name="ShopOrderDetail">
 import { getMyOrder, payOrder, cancelMyOrder, confirmReceiveOrder } from '@/api/app/order'
-import { getToken } from '@/utils/auth'
 import { promptShopLogin } from '@/utils/shopAuth'
 import { parseTime } from '@/utils/ruoyi'
+import useUserStore from '@/store/modules/user'
 
 const route = useRoute()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
+const userStore = useUserStore()
 const { mall_order_status } = useDict('mall_order_status')
 const order = ref(null)
 const loading = ref(true)
-const isLogin = computed(() => !!getToken())
+const isLogin = computed(() => !!userStore.token)
 
 const statusTips = {
   '0': '请尽快完成支付',
@@ -94,7 +95,7 @@ function goLogin() {
 }
 
 function load() {
-  if (!getToken()) {
+  if (!userStore.token) {
     loading.value = false
     return
   }

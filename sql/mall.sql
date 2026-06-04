@@ -30,6 +30,8 @@ create table mall_product (
   product_name    varchar(128)    not null                   comment '商品名称',
   product_sn      varchar(64)     default ''                 comment '商品货号',
   pic             varchar(512)    default ''                 comment '主图URL',
+  album           varchar(2000)   default ''                 comment '相册图，逗号分隔',
+  video           varchar(512)    default ''                 comment '商品视频URL',
   price           decimal(10,2)   default 0.00               comment '销售价格',
   stock           int(11)         default 0                  comment '库存',
   sale_count      int(11)         default 0                  comment '销量',
@@ -100,8 +102,8 @@ insert into mall_category values(1, 0, '数码家电', 1, '0', '0', 'admin', sys
 insert into mall_category values(2, 0, '服饰鞋包', 2, '0', '0', 'admin', sysdate(), '', null, '服饰鞋包分类');
 insert into mall_category values(3, 1, '手机通讯', 1, '0', '0', 'admin', sysdate(), '', null, null);
 
-insert into mall_product values(1, 3, '示例智能手机', 'SPU001', '', 2999.00, 100, 0, '0', '示例商品，可在后台替换', '0', 'admin', sysdate(), '', null, null);
-insert into mall_product values(2, 2, '示例休闲T恤', 'SPU002', '', 99.00, 500, 12, '0', '纯棉休闲T恤', '0', 'admin', sysdate(), '', null, null);
+insert into mall_product values(1, 3, '示例智能手机', 'SPU001', '', '', '', 2999.00, 100, 0, '0', '示例商品，可在后台替换', '0', 'admin', sysdate(), '', null, null);
+insert into mall_product values(2, 2, '示例休闲T恤', 'SPU002', '', '', '', 99.00, 500, 12, '0', '纯棉休闲T恤', '0', 'admin', sysdate(), '', null, null);
 
 insert into mall_order values(1, '202606040001', 2, 'ry', 2999.00, 2999.00, '1', '张三', '13800138000', '北京市朝阳区示例路1号', sysdate(), null, null, null, 'admin', sysdate(), '', null, '示例订单');
 insert into mall_order_item values(1, 1, 1, '示例智能手机', '', 2999.00, 1, 2999.00);

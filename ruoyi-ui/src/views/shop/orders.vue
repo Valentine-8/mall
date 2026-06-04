@@ -44,12 +44,13 @@
 
 <script setup name="ShopOrders">
 import { listMyOrders, payOrder, cancelMyOrder, confirmReceiveOrder } from '@/api/app/order'
-import { getToken } from '@/utils/auth'
 import { promptShopLogin } from '@/utils/shopAuth'
+import useUserStore from '@/store/modules/user'
 
 const route = useRoute()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
+const userStore = useUserStore()
 const { mall_order_status } = useDict('mall_order_status')
 
 const tabs = [
@@ -64,7 +65,7 @@ const tabs = [
 const activeTab = ref(route.query.status != null ? String(route.query.status) : '')
 const orders = ref([])
 const loading = ref(true)
-const isLogin = computed(() => !!getToken())
+const isLogin = computed(() => !!userStore.token)
 
 function goLogin() {
   const q = activeTab.value ? `?status=${activeTab.value}` : ''
@@ -72,7 +73,7 @@ function goLogin() {
 }
 
 function loadOrders() {
-  if (!getToken()) {
+  if (!userStore.token) {
     loading.value = false
     return
   }
