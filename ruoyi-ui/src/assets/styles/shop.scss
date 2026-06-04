@@ -1,0 +1,44 @@
+/* Shop responsive: mobile <=768px, PC >=769px */
+:root {
+  --shop-max-width: 100%;
+  --shop-content-pad: 12px;
+}
+@media (min-width: 769px) {
+  :root {
+    --shop-max-width: 1200px;
+    --shop-content-pad: 24px;
+  }
+}
+.shop-page-bg {
+  min-height: 100vh;
+  background: #eef0f4;
+}
+.shop-only-mobile { display: block; }
+.shop-only-pc { display: none !important; }
+@media (min-width: 769px) {
+  .shop-only-mobile { display: none !important; }
+  .shop-only-pc { display: block !important; }
+  .shop-only-pc.flex { display: flex !important; }
+}
+.shop-content {
+  width: 100%;
+  max-width: var(--shop-max-width);
+  margin: 0 auto;
+  padding-left: var(--shop-content-pad);
+  padding-right: var(--shop-content-pad);
+  box-sizing: border-box;
+}
+@media (min-width: 769px) {
+  .shop-fixed-bar {
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: var(--shop-max-width) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: var(--shop-content-pad) !important;
+    padding-right: var(--shop-content-pad) !important;
+    box-sizing: border-box !important;
+  }
+}

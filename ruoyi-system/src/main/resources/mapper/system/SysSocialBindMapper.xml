@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysSocialBindMapper">
+
+    <resultMap id="SysSocialBindResult" type="com.ruoyi.system.domain.SysSocialBind">
+        <id property="bindId" column="bind_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="socialType" column="social_type"/>
+        <result property="openId" column="open_id"/>
+        <result property="unionId" column="union_id"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatar" column="avatar"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectByTypeAndOpenId" resultMap="SysSocialBindResult">
+        select bind_id, user_id, social_type, open_id, union_id, nickname, avatar, create_time
+        from sys_social_bind
+        where social_type = #{socialType} and open_id = #{openId}
+        limit 1
+    </select>
+
+    <insert id="insertSocialBind" parameterType="com.ruoyi.system.domain.SysSocialBind" useGeneratedKeys="true" keyProperty="bindId">
+        insert into sys_social_bind(user_id, social_type, open_id, union_id, nickname, avatar, create_time)
+        values(#{userId}, #{socialType}, #{openId}, #{unionId}, #{nickname}, #{avatar}, sysdate())
+    </insert>
+</mapper>

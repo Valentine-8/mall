@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallOrderMapper">
+
+    <resultMap type="MallOrder" id="MallOrderResult">
+        <result property="orderId" column="order_id"/>
+        <result property="orderSn" column="order_sn"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="status" column="status"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="receiverPhone" column="receiver_phone"/>
+        <result property="receiverAddress" column="receiver_address"/>
+        <result property="payTime" column="pay_time"/>
+        <result property="deliveryTime" column="delivery_time"/>
+        <result property="finishTime" column="finish_time"/>
+        <result property="cancelTime" column="cancel_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectOrderVo">
+        select order_id, order_sn, user_id, user_name, total_amount, pay_amount, status,
+               receiver_name, receiver_phone, receiver_address,
+               pay_time, delivery_time, finish_time, cancel_time,
+               create_by, create_time, update_by, update_time, remark
+        from mall_order
+    </sql>
+
+    <select id="selectMallOrderById" parameterType="Long" resultMap="MallOrderResult">
+        <include refid="selectOrderVo"/>
+        where order_id = #{orderId}
+    </select>
+
+    <select id="selectMallOrderList" parameterType="MallOrder" resultMap="MallOrderResult">
+        <include refid="selectOrderVo"/>
+        <where>
+            <if test="orderSn != null and orderSn != ''">
+                AND order_sn like concat('%', #{orderSn}, '%')
+            </if>
+            <if test="userName != null and userName != ''">
+                AND user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="receiverName != null and receiverName != ''">
+                AND receiver_name like concat('%', #{receiverName}, '%')
+            </if>
+            <if test="receiverPhone != null and receiverPhone != ''">
+                AND receiver_phone like concat('%', #{receiverPhone}, '%')
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+            </if>
+        </where>
+        order by order_id desc
+    </select>
+
+    <insert id="insertMallOrder" parameterType="MallOrder" useGeneratedKeys="true" keyProperty="orderId">
+        insert into mall_order (
+            order_sn, user_id, user_name, total_amount, pay_amount, status,
+            receiver_name, receiver_phone, receiver_address,
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            create_time
+        ) values (
+            #{orderSn}, #{userId}, #{userName}, #{totalAmount}, #{payAmount}, #{status},
+            #{receiverName}, #{receiverPhone}, #{receiverAddress},
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            sysdate()
+        )
+    </insert>
+
+    <update id="updateMallOrder" parameterType="MallOrder">
+        update mall_order
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="payTime != null">pay_time = #{payTime},</if>
+            <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+            <if test="finishTime != null">finish_time = #{finishTime},</if>
+            <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where order_id = #{orderId}
+    </update>
+
+    <delete id="deleteMallOrderById" parameterType="Long">
+        delete from mall_order where order_id = #{orderId}
+    </delete>
+
+    <delete id="deleteMallOrderByIds" parameterType="Long">
+        delete from mall_order where order_id in
+        <foreach collection="array" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+    <select id="selectMallOrderListByUserId" resultMap="MallOrderResult">
+        <include refid="selectOrderVo"/>
+        where user_id = #{userId}
+        <if test="status != null and status != ''">
+            <choose>
+                <when test="status == 'afterSale'">
+                    and status in ('4', '5')
+                </when>
+                <otherwise>
+                    and status = #{status}
+                </otherwise>
+            </choose>
+        </if>
+        order by order_id desc
+    </select>
+</mapper>

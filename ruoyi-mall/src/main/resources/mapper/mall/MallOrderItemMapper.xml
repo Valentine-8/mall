@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallOrderItemMapper">
+
+    <resultMap type="MallOrderItem" id="MallOrderItemResult">
+        <result property="itemId" column="item_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="productName" column="product_name"/>
+        <result property="productPic" column="product_pic"/>
+        <result property="productPrice" column="product_price"/>
+        <result property="quantity" column="quantity"/>
+        <result property="totalAmount" column="total_amount"/>
+    </resultMap>
+
+    <select id="selectMallOrderItemByOrderId" parameterType="Long" resultMap="MallOrderItemResult">
+        select item_id, order_id, product_id, product_name, product_pic, product_price, quantity, total_amount
+        from mall_order_item where order_id = #{orderId}
+    </select>
+
+    <insert id="batchInsertMallOrderItem">
+        insert into mall_order_item (order_id, product_id, product_name, product_pic, product_price, quantity, total_amount) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.orderId}, #{item.productId}, #{item.productName}, #{item.productPic},
+             #{item.productPrice}, #{item.quantity}, #{item.totalAmount})
+        </foreach>
+    </insert>
+
+    <delete id="deleteMallOrderItemByOrderId" parameterType="Long">
+        delete from mall_order_item where order_id = #{orderId}
+    </delete>
+
+    <delete id="deleteMallOrderItemByOrderIds" parameterType="Long">
+        delete from mall_order_item where order_id in
+        <foreach collection="array" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+</mapper>

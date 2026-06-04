@@ -1,0 +1,11 @@
+# Windows：复制内容到 C:\Users\lemon\.ssh\config（无此文件则新建）
+# 将 IdentityFile、HostName 改成你的私钥路径与公网 IP
+
+Host lemon-mall
+    HostName 82.156.68.87
+    User ubuntu
+    IdentityFile C:\Users\lemon\Downloads\ruoyimall.pem
+
+# 用法示例：
+#   ssh lemon-mall
+#   scp -r D:\Users\lemon\mall\deploy lemon-mall:~/mall/deploy

@@ -1,0 +1,17 @@
+# https://editorconfig.org — 全仓库统一 UTF-8，避免 Windows GBK 乱码
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{java,xml,yml,yaml,properties,sql,md,js,ts,vue,scss,css,html,json}]
+charset = utf-8
+
+[*.bat]
+end_of_line = crlf
+
+[*.cmd]
+end_of_line = crlf

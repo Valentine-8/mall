@@ -1,0 +1,6 @@
+.env
+app/*.jar
+html/*
+!html/.gitkeep
+config/application-druid.yml
+config/application.yml

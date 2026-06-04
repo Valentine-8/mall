@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallCartMapper">
+
+    <resultMap type="com.ruoyi.mall.domain.vo.MallCartVo" id="MallCartVoResult">
+        <result property="cartId" column="cart_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="productName" column="product_name"/>
+        <result property="pic" column="pic"/>
+        <result property="price" column="price"/>
+        <result property="stock" column="stock"/>
+        <result property="status" column="status"/>
+        <result property="quantity" column="quantity"/>
+        <result property="checked" column="checked"/>
+    </resultMap>
+
+    <select id="selectCartVoListByUserId" parameterType="Long" resultMap="MallCartVoResult">
+        select c.cart_id, c.product_id, p.product_name, p.pic, p.price, p.stock, p.status,
+               c.quantity, c.checked
+        from mall_cart c
+        inner join mall_product p on c.product_id = p.product_id and p.del_flag = '0'
+        where c.user_id = #{userId}
+        order by c.update_time desc, c.cart_id desc
+    </select>
+
+    <select id="selectCartByUserAndProduct" resultType="MallCart">
+        select cart_id, user_id, product_id, quantity, checked, create_time, update_time
+        from mall_cart where user_id = #{userId} and product_id = #{productId}
+    </select>
+
+    <select id="selectCartById" resultType="MallCart">
+        select cart_id, user_id, product_id, quantity, checked, create_time, update_time
+        from mall_cart where cart_id = #{cartId}
+    </select>
+
+    <insert id="insertMallCart" parameterType="MallCart" useGeneratedKeys="true" keyProperty="cartId">
+        insert into mall_cart (user_id, product_id, quantity, checked, create_time, update_time)
+        values (#{userId}, #{productId}, #{quantity}, #{checked}, sysdate(), sysdate())
+    </insert>
+
+    <update id="updateMallCart" parameterType="MallCart">
+        update mall_cart
+        <set>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="checked != null">checked = #{checked},</if>
+            update_time = sysdate()
+        </set>
+        where cart_id = #{cartId}
+    </update>
+
+    <delete id="deleteCartById">
+        delete from mall_cart where cart_id = #{cartId}
+    </delete>
+
+    <delete id="deleteCartByIds">
+        delete from mall_cart where user_id = #{userId} and cart_id in
+        <foreach collection="cartIds" item="cartId" open="(" separator="," close=")">
+            #{cartId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteCartByUserId" parameterType="Long">
+        delete from mall_cart where user_id = #{userId}
+    </delete>
+</mapper>

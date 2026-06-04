@@ -1,0 +1,85 @@
+# 商城单机部署：MySQL + Redis + 后端 jar + Nginx
+# 在 deploy 目录执行：docker compose up -d
+# 适用：腾讯云轻量 2核4G + Docker 镜像，先公网 IP 测试，后绑域名
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mall-mysql
+    restart: unless-stopped
+    mem_limit: 1024m
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ry-vue
+      TZ: Asia/Shanghai
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=256M
+    volumes:
+      - mall-mysql-data:/var/lib/mysql
+      - ../sql/ry_mall_complete.sql:/docker-entrypoint-initdb.d/01_ry_mall_complete.sql:ro
+      - ../sql/mall_social.sql:/docker-entrypoint-initdb.d/02_mall_social.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    networks:
+      - mall-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: mall-redis
+    restart: unless-stopped
+    mem_limit: 128m
+    command: redis-server --maxmemory 96mb --maxmemory-policy allkeys-lru
+    networks:
+      - mall-net
+
+  mall-api:
+    image: eclipse-temurin:17-jre-jammy
+    container_name: mall-api
+    restart: unless-stopped
+    mem_limit: 768m
+    working_dir: /app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./app/ruoyi-admin.jar:/app/ruoyi-admin.jar:ro
+      - ./config/application-druid.yml:/app/config/application-druid.yml:ro
+      - ./config/application.yml:/app/config/application.yml:ro
+      - mall-upload:/data/ruoyi/uploadPath
+    command: >
+      java -Xms256m -Xmx640m -Dfile.encoding=UTF-8
+      -jar /app/ruoyi-admin.jar
+      --spring.profiles.active=druid
+      --spring.config.additional-location=file:/app/config/
+    networks:
+      - mall-net
+
+  nginx:
+    image: nginx:alpine
+    container_name: mall-nginx
+    restart: unless-stopped
+    mem_limit: 64m
+    depends_on:
+      - mall-api
+    ports:
+      - "80:80"
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - mall-net
+
+networks:
+  mall-net:
+
+volumes:
+  mall-mysql-data:
+  mall-upload:

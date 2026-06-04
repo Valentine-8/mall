@@ -1,0 +1,14 @@
+# 复制为 application-druid.yml 并填写真实密码
+# cp application-druid.yml.example application-druid.yml
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      master:
+        url: jdbc:mysql://mysql:3306/ry-vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        username: root
+        password: ChangeMe_StrongPassword_123
+      slave:
+        enabled: false
