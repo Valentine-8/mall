@@ -31,9 +31,10 @@ public class AppMallCartController extends BaseController
     }
 
     @PostMapping("/add")
-    public AjaxResult add(@RequestParam Long productId, @RequestParam(defaultValue = "1") Integer quantity)
+    public AjaxResult add(@RequestParam Long productId, @RequestParam(defaultValue = "1") Integer quantity,
+            @RequestParam(defaultValue = "false") boolean replace)
     {
-        return toAjax(cartService.addToCart(getUserId(), productId, quantity));
+        return success(cartService.addToCartReturnId(getUserId(), productId, quantity, replace));
     }
 
     @PutMapping("/quantity")

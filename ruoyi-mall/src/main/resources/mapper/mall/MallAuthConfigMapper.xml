@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallAuthConfigMapper">
+
+    <resultMap type="MallAuthConfig" id="MallAuthConfigResult">
+        <result property="configId" column="config_id"/>
+        <result property="emailEnabled" column="email_enabled"/>
+        <result property="smtpHost" column="smtp_host"/>
+        <result property="smtpPort" column="smtp_port"/>
+        <result property="smtpSsl" column="smtp_ssl"/>
+        <result property="smtpUser" column="smtp_user"/>
+        <result property="smtpPassword" column="smtp_password"/>
+        <result property="emailFromName" column="email_from_name"/>
+        <result property="emailFromAddress" column="email_from_address"/>
+        <result property="emailSubject" column="email_subject"/>
+        <result property="emailBodyTemplate" column="email_body_template"/>
+        <result property="emailMock" column="email_mock"/>
+        <result property="phoneEnabled" column="phone_enabled"/>
+        <result property="smsMock" column="sms_mock"/>
+        <result property="smsProvider" column="sms_provider"/>
+        <result property="smsAccessKey" column="sms_access_key"/>
+        <result property="smsSecretKey" column="sms_secret_key"/>
+        <result property="smsSign" column="sms_sign"/>
+        <result property="smsTemplateId" column="sms_template_id"/>
+        <result property="otpExpireMinutes" column="otp_expire_minutes"/>
+        <result property="otpSendInterval" column="otp_send_interval"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectMallAuthConfig" resultMap="MallAuthConfigResult">
+        select config_id, email_enabled, smtp_host, smtp_port, smtp_ssl, smtp_user, smtp_password,
+               email_from_name, email_from_address, email_subject, email_body_template, email_mock,
+               phone_enabled, sms_mock, sms_provider, sms_access_key, sms_secret_key, sms_sign,
+               sms_template_id, otp_expire_minutes, otp_send_interval,
+               create_by, create_time, update_by, update_time
+        from mall_auth_config where config_id = 1
+    </select>
+
+    <update id="updateMallAuthConfig" parameterType="MallAuthConfig">
+        update mall_auth_config
+        <set>
+            <if test="emailEnabled != null">email_enabled = #{emailEnabled},</if>
+            <if test="smtpHost != null">smtp_host = #{smtpHost},</if>
+            <if test="smtpPort != null">smtp_port = #{smtpPort},</if>
+            <if test="smtpSsl != null">smtp_ssl = #{smtpSsl},</if>
+            <if test="smtpUser != null">smtp_user = #{smtpUser},</if>
+            <if test="smtpPassword != null">smtp_password = #{smtpPassword},</if>
+            <if test="emailFromName != null">email_from_name = #{emailFromName},</if>
+            <if test="emailFromAddress != null">email_from_address = #{emailFromAddress},</if>
+            <if test="emailSubject != null">email_subject = #{emailSubject},</if>
+            <if test="emailBodyTemplate != null">email_body_template = #{emailBodyTemplate},</if>
+            <if test="emailMock != null">email_mock = #{emailMock},</if>
+            <if test="phoneEnabled != null">phone_enabled = #{phoneEnabled},</if>
+            <if test="smsMock != null">sms_mock = #{smsMock},</if>
+            <if test="smsProvider != null">sms_provider = #{smsProvider},</if>
+            <if test="smsAccessKey != null">sms_access_key = #{smsAccessKey},</if>
+            <if test="smsSecretKey != null">sms_secret_key = #{smsSecretKey},</if>
+            <if test="smsSign != null">sms_sign = #{smsSign},</if>
+            <if test="smsTemplateId != null">sms_template_id = #{smsTemplateId},</if>
+            <if test="otpExpireMinutes != null">otp_expire_minutes = #{otpExpireMinutes},</if>
+            <if test="otpSendInterval != null">otp_send_interval = #{otpSendInterval},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where config_id = 1
+    </update>
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallChatAgentMapper">
+
+    <resultMap type="MallChatAgent" id="MallChatAgentResult">
+        <result property="agentId" column="agent_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="status" column="status"/>
+        <result property="maxSessions" column="max_sessions"/>
+        <result property="activeSessions" column="active_sessions"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="userName" column="user_name"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectAgentVo">
+        select a.agent_id, a.user_id, a.nick_name, a.status, a.max_sessions, a.active_sessions,
+               a.sort_order, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time,
+               u.user_name
+        from mall_chat_agent a
+        left join sys_user u on a.user_id = u.user_id
+    </sql>
+
+    <select id="selectMallChatAgentById" parameterType="Long" resultMap="MallChatAgentResult">
+        <include refid="selectAgentVo"/>
+        where a.agent_id = #{agentId} and a.del_flag = '0'
+    </select>
+
+    <select id="selectMallChatAgentByUserId" parameterType="Long" resultMap="MallChatAgentResult">
+        <include refid="selectAgentVo"/>
+        where a.user_id = #{userId} and a.del_flag = '0'
+    </select>
+
+    <select id="selectMallChatAgentList" parameterType="MallChatAgent" resultMap="MallChatAgentResult">
+        <include refid="selectAgentVo"/>
+        <where>
+            a.del_flag = '0'
+            <if test="nickName != null and nickName != ''">AND a.nick_name like concat('%', #{nickName}, '%')</if>
+            <if test="status != null and status != ''">AND a.status = #{status}</if>
+        </where>
+        order by a.sort_order asc, a.agent_id asc
+    </select>
+
+    <select id="selectAvailableAgents" resultMap="MallChatAgentResult">
+        <include refid="selectAgentVo"/>
+        where a.del_flag = '0' and a.status = '1'
+          and a.active_sessions &lt; a.max_sessions
+        order by a.active_sessions asc, a.sort_order asc, a.agent_id asc
+    </select>
+
+    <insert id="insertMallChatAgent" parameterType="MallChatAgent" useGeneratedKeys="true" keyProperty="agentId">
+        insert into mall_chat_agent (user_id, nick_name, status, max_sessions, active_sessions, sort_order, del_flag, create_by, create_time)
+        values (#{userId}, #{nickName}, #{status}, #{maxSessions}, 0, #{sortOrder}, '0', #{createBy}, sysdate())
+    </insert>
+
+    <update id="updateMallChatAgent" parameterType="MallChatAgent">
+        update mall_chat_agent
+        <set>
+            <if test="nickName != null">nick_name = #{nickName},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="maxSessions != null">max_sessions = #{maxSessions},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where agent_id = #{agentId}
+    </update>
+
+    <update id="deleteMallChatAgentById" parameterType="Long">
+        update mall_chat_agent set del_flag = '2' where agent_id = #{agentId}
+    </update>
+
+    <update id="increaseActiveSessions" parameterType="Long">
+        update mall_chat_agent set active_sessions = active_sessions + 1 where agent_id = #{agentId} and del_flag = '0'
+    </update>
+
+    <update id="decreaseActiveSessions" parameterType="Long">
+        update mall_chat_agent set active_sessions = case when active_sessions > 0 then active_sessions - 1 else 0 end
+        where agent_id = #{agentId} and del_flag = '0'
+    </update>
+</mapper>

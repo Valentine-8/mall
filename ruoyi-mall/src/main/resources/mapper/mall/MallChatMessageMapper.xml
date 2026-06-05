@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallChatMessageMapper">
+
+    <resultMap type="MallChatMessage" id="MallChatMessageResult">
+        <result property="messageId" column="message_id"/>
+        <result property="sessionId" column="session_id"/>
+        <result property="senderType" column="sender_type"/>
+        <result property="senderId" column="sender_id"/>
+        <result property="senderName" column="sender_name"/>
+        <result property="msgType" column="msg_type"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectMessagesBySessionId" resultMap="MallChatMessageResult">
+        select message_id, session_id, sender_type, sender_id, sender_name, msg_type, content, create_time
+        from mall_chat_message
+        where session_id = #{sessionId}
+        <if test="afterId != null">and message_id &gt; #{afterId}</if>
+        order by message_id asc
+    </select>
+
+    <insert id="insertMallChatMessage" parameterType="MallChatMessage" useGeneratedKeys="true" keyProperty="messageId">
+        insert into mall_chat_message (session_id, sender_type, sender_id, sender_name, msg_type, content, create_time)
+        values (#{sessionId}, #{senderType}, #{senderId}, #{senderName}, #{msgType}, #{content}, sysdate())
+    </insert>
+</mapper>

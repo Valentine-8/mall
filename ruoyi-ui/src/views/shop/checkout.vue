@@ -76,8 +76,8 @@ const rules = {
 async function loadSettlePreview() {
   const res = await listCart()
   const all = res.data || []
-  const idSet = new Set(form.value.cartIds)
-  settleItems.value = all.filter(i => idSet.has(i.cartId))
+  const idSet = new Set(form.value.cartIds.map(Number))
+  settleItems.value = all.filter(i => idSet.has(Number(i.cartId)))
 }
 
 async function initCheckout() {
@@ -104,9 +104,8 @@ async function initCheckout() {
     }
     await loadSettlePreview()
     ready.value = settleItems.value.length > 0
-  } catch (e) {
+  } catch {
     ready.value = false
-    proxy.$modal.msgError(e.message || '加载结算信息失败')
   } finally {
     preparing.value = false
   }
@@ -147,7 +146,7 @@ onMounted(() => initCheckout())
 }
 .preview-item:last-child { border-bottom: none; }
 .preview-item .name { flex: 1; color: #333; }
-.preview-item .meta { color: #ff6b35; flex-shrink: 0; }
+.preview-item .meta { color: var(--shop-primary); flex-shrink: 0; }
 .section { background: #fff; border-radius: 10px; padding: 16px; }
 .section h3 { margin: 0 0 12px; font-size: 16px; }
 .submit-bar { padding: 12px 16px; background: #fff; }

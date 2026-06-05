@@ -100,7 +100,7 @@ public class SecurityConfig
             .authorizeHttpRequests((requests) -> {
                 permitAllUrl.getUrls().forEach(url -> requests.requestMatchers(url).permitAll());
                 // 对于登录login 注册register 验证码captchaImage 允许匿名访问
-                requests.requestMatchers("/login", "/register", "/captchaImage", "/social/**").permitAll()
+                requests.requestMatchers("/login", "/register", "/captchaImage", "/social/**", "/otp/**").permitAll()
                     // C端商城浏览
                     .requestMatchers(HttpMethod.GET, "/app/mall/category/**", "/app/mall/product/**").permitAll()
                     // 静态资源，可匿名访问

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallChatSessionMapper">
+
+    <resultMap type="MallChatSession" id="MallChatSessionResult">
+        <result property="sessionId" column="session_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="agentId" column="agent_id"/>
+        <result property="agentName" column="agent_name"/>
+        <result property="status" column="status"/>
+        <result property="lastMessage" column="last_message"/>
+        <result property="lastMessageTime" column="last_message_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectMallChatSessionById" parameterType="Long" resultMap="MallChatSessionResult">
+        select session_id, user_id, user_name, agent_id, agent_name, status, last_message, last_message_time, create_time, update_time
+        from mall_chat_session where session_id = #{sessionId}
+    </select>
+
+    <select id="selectOpenSessionByUserId" parameterType="Long" resultMap="MallChatSessionResult">
+        select session_id, user_id, user_name, agent_id, agent_name, status, last_message, last_message_time, create_time, update_time
+        from mall_chat_session
+        where user_id = #{userId} and status != '3'
+        order by session_id desc limit 1
+    </select>
+
+    <select id="selectMallChatSessionList" parameterType="MallChatSession" resultMap="MallChatSessionResult">
+        select session_id, user_id, user_name, agent_id, agent_name, status, last_message, last_message_time, create_time, update_time
+        from mall_chat_session
+        <where>
+            <if test="userName != null and userName != ''">AND user_name like concat('%', #{userName}, '%')</if>
+            <if test="status != null and status != ''">AND status = #{status}</if>
+            <if test="agentId != null">AND agent_id = #{agentId}</if>
+        </where>
+        order by last_message_time desc, session_id desc
+    </select>
+
+    <select id="selectWaitingSessions" resultMap="MallChatSessionResult">
+        select session_id, user_id, user_name, agent_id, agent_name, status, last_message, last_message_time, create_time, update_time
+        from mall_chat_session where status = '1' order by create_time asc
+    </select>
+
+    <insert id="insertMallChatSession" parameterType="MallChatSession" useGeneratedKeys="true" keyProperty="sessionId">
+        insert into mall_chat_session (user_id, user_name, agent_id, agent_name, status, last_message, last_message_time, create_time, update_time)
+        values (#{userId}, #{userName}, #{agentId}, #{agentName}, #{status}, #{lastMessage}, #{lastMessageTime}, sysdate(), sysdate())
+    </insert>
+
+    <update id="updateMallChatSession" parameterType="MallChatSession">
+        update mall_chat_session
+        <set>
+            <if test="agentId != null">agent_id = #{agentId},</if>
+            <if test="agentName != null">agent_name = #{agentName},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="lastMessage != null">last_message = #{lastMessage},</if>
+            <if test="lastMessageTime != null">last_message_time = #{lastMessageTime},</if>
+            update_time = sysdate()
+        </set>
+        where session_id = #{sessionId}
+    </update>
+</mapper>

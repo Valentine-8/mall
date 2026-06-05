@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallChatConfigMapper">
+
+    <resultMap type="MallChatConfig" id="MallChatConfigResult">
+        <result property="configId" column="config_id"/>
+        <result property="aiEnabled" column="ai_enabled"/>
+        <result property="aiApiUrl" column="ai_api_url"/>
+        <result property="aiApiKey" column="ai_api_key"/>
+        <result property="aiModel" column="ai_model"/>
+        <result property="systemPrompt" column="system_prompt"/>
+        <result property="welcomeMessage" column="welcome_message"/>
+        <result property="transferKeywords" column="transfer_keywords"/>
+        <result property="kbEnabled" column="kb_enabled"/>
+        <result property="embeddingModel" column="embedding_model"/>
+        <result property="ragTopK" column="rag_top_k"/>
+        <result property="chunkSize" column="chunk_size"/>
+        <result property="chunkOverlap" column="chunk_overlap"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectMallChatConfig" resultMap="MallChatConfigResult">
+        select config_id, ai_enabled, ai_api_url, ai_api_key, ai_model, system_prompt,
+               welcome_message, transfer_keywords, kb_enabled, embedding_model, rag_top_k,
+               chunk_size, chunk_overlap, create_by, create_time, update_by, update_time
+        from mall_chat_config where config_id = 1
+    </select>
+
+    <update id="updateMallChatConfig" parameterType="MallChatConfig">
+        update mall_chat_config
+        <set>
+            <if test="aiEnabled != null">ai_enabled = #{aiEnabled},</if>
+            <if test="aiApiUrl != null">ai_api_url = #{aiApiUrl},</if>
+            <if test="aiApiKey != null">ai_api_key = #{aiApiKey},</if>
+            <if test="aiModel != null">ai_model = #{aiModel},</if>
+            <if test="systemPrompt != null">system_prompt = #{systemPrompt},</if>
+            <if test="welcomeMessage != null">welcome_message = #{welcomeMessage},</if>
+            <if test="transferKeywords != null">transfer_keywords = #{transferKeywords},</if>
+            <if test="kbEnabled != null">kb_enabled = #{kbEnabled},</if>
+            <if test="embeddingModel != null">embedding_model = #{embeddingModel},</if>
+            <if test="ragTopK != null">rag_top_k = #{ragTopK},</if>
+            <if test="chunkSize != null">chunk_size = #{chunkSize},</if>
+            <if test="chunkOverlap != null">chunk_overlap = #{chunkOverlap},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where config_id = 1
+    </update>
+</mapper>

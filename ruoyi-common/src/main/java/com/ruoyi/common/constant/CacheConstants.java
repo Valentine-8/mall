@@ -41,4 +41,14 @@ public class CacheConstants
      * 登录账户密码错误次数 redis key
      */
     public static final String PWD_ERR_CNT_KEY = "pwd_err_cnt:";
+
+    /**
+     * C端 OTP 验证码 redis key
+     */
+    public static final String OTP_CODE_KEY = "otp_code:";
+
+    /**
+     * C端 OTP 发送冷却 redis key
+     */
+    public static final String OTP_SEND_KEY = "otp_send:";
 }

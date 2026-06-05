@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallKnowledgeChunkMapper">
+
+    <resultMap type="MallKnowledgeChunk" id="MallKnowledgeChunkResult">
+        <result property="chunkId" column="chunk_id"/>
+        <result property="docId" column="doc_id"/>
+        <result property="chunkIndex" column="chunk_index"/>
+        <result property="content" column="content"/>
+        <result property="keywords" column="keywords"/>
+        <result property="embedding" column="embedding"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectActiveChunks" resultMap="MallKnowledgeChunkResult">
+        select c.chunk_id, c.doc_id, c.chunk_index, c.content, c.keywords, c.embedding, c.create_time
+        from mall_knowledge_chunk c
+        inner join mall_knowledge_doc d on d.doc_id = c.doc_id and d.del_flag = '0' and d.status = '1'
+        order by c.doc_id, c.chunk_index
+    </select>
+
+    <insert id="insertMallKnowledgeChunk" useGeneratedKeys="true" keyProperty="chunkId">
+        insert into mall_knowledge_chunk (doc_id, chunk_index, content, keywords, embedding, create_time)
+        values (#{docId}, #{chunkIndex}, #{content}, #{keywords}, #{embedding}, sysdate())
+    </insert>
+
+    <delete id="deleteChunksByDocId">
+        delete from mall_knowledge_chunk where doc_id = #{docId}
+    </delete>
+</mapper>

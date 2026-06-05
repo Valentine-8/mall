@@ -33,24 +33,42 @@ public class MallCartServiceImpl implements IMallCartService
     @Override
     public int addToCart(Long userId, Long productId, Integer quantity)
     {
+        addToCartReturnId(userId, productId, quantity, false);
+        return 1;
+    }
+
+    @Override
+    public Long addToCartReturnId(Long userId, Long productId, Integer quantity, boolean replaceQuantity)
+    {
         MallProduct product = requireOnSaleProduct(productId);
-        if (quantity == null || quantity < 1) quantity = 1;
-        if (product.getStock() < quantity) throw new ServiceException(MSG_STOCK);
+        if (quantity == null || quantity < 1)
+        {
+            quantity = 1;
+        }
+        if (product.getStock() < quantity)
+        {
+            throw new ServiceException(MSG_STOCK);
+        }
         MallCart exist = cartMapper.selectCartByUserAndProduct(userId, productId);
         if (exist != null)
         {
-            int newQty = exist.getQuantity() + quantity;
-            if (product.getStock() < newQty) throw new ServiceException(MSG_STOCK);
+            int newQty = replaceQuantity ? quantity : exist.getQuantity() + quantity;
+            if (product.getStock() < newQty)
+            {
+                throw new ServiceException(MSG_STOCK);
+            }
             exist.setQuantity(newQty);
             exist.setChecked("1");
-            return cartMapper.updateMallCart(exist);
+            cartMapper.updateMallCart(exist);
+            return exist.getCartId();
         }
         MallCart cart = new MallCart();
         cart.setUserId(userId);
         cart.setProductId(productId);
         cart.setQuantity(quantity);
         cart.setChecked("1");
-        return cartMapper.insertMallCart(cart);
+        cartMapper.insertMallCart(cart);
+        return cart.getCartId();
     }
 
     @Override

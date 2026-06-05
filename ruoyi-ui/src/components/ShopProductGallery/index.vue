@@ -3,6 +3,7 @@
     <div
       ref="stageRef"
       class="gallery-stage"
+      :class="{ 'is-single': urls.length <= 1 }"
       :style="{ height: stageHeight }"
       @touchstart.passive="onStageTouchStart"
       @touchmove="onStageTouchMove"
@@ -40,7 +41,6 @@
       >&rsaquo;</button>
       <div v-if="urls.length > 1" class="gallery-counter">{{ activeIndex + 1 }} / {{ urls.length }}</div>
     </div>
-    <div v-if="urls.length > 1" class="gallery-hint">左右滑动切换，点击放大</div>
     <div v-if="urls.length > 1" class="album-thumbs">
       <button
         v-for="(url, idx) in urls"
@@ -55,20 +55,22 @@
     </div>
 
     <teleport to="body">
-      <div v-if="viewerOpen" class="shop-image-viewer" @click.self="closeViewer">
-        <button type="button" class="viewer-close" @click="closeViewer">&times;</button>
+      <div v-if="viewerOpen" class="shop-image-viewer" @click.self="closeViewerAndBlockReopen">
+        <button type="button" class="viewer-close" @click.stop="closeViewerAndBlockReopen">&times;</button>
         <div v-if="urls.length > 1" class="viewer-counter">{{ activeIndex + 1 }} / {{ urls.length }}</div>
         <div
           ref="viewerRef"
           class="viewer-stage"
-          :class="{ 'is-zoomed': viewerScale > 1.01 }"
+          :class="{ 'is-transforming': !isViewerTrackMode }"
           @touchstart.passive="onViewerTouchStart"
           @touchmove="onViewerTouchMove"
           @touchend="onViewerTouchEnd"
-          @click="onViewerClick"
+          @wheel.prevent="onViewerWheel"
+          @mousedown="onViewerMouseDown"
+          @click.stop="onViewerClick"
         >
           <div
-            v-if="viewerScale <= 1.01 && urls.length > 1"
+            v-if="isViewerTrackMode"
             class="viewer-track"
             :style="viewerTrackStyle"
           >
@@ -83,15 +85,14 @@
           </div>
           <img
             v-else
+            ref="zoomImgRef"
             :src="urls[activeIndex]"
             class="viewer-img viewer-img-zoom"
             draggable="false"
             alt=""
             :style="viewerZoomStyle"
+            @load="measureZoomImg"
           />
-        </div>
-        <div class="viewer-hint">
-          {{ viewerScale > 1.01 ? '双指缩放 · 点击退出全屏' : (urls.length > 1 ? '左右滑切换 · 双指放大 · 点击退出' : '双指放大 · 点击退出') }}
         </div>
       </div>
     </teleport>
@@ -101,6 +102,10 @@
 <script setup>
 const SWIPE_THRESHOLD = 0.22
 const TRANSITION = 'transform 0.34s cubic-bezier(0.22, 1, 0.36, 1)'
+const VIEWER_MIN_SCALE = 0.3
+const VIEWER_MAX_SCALE = 4
+const VIEWER_UNIT_SCALE = 1
+const VIEWER_SCALE_EPS = 0.01
 
 const props = defineProps({
   urls: {
@@ -115,6 +120,7 @@ const props = defineProps({
 
 const stageRef = ref(null)
 const viewerRef = ref(null)
+const zoomImgRef = ref(null)
 const activeIndex = ref(0)
 const viewerOpen = ref(false)
 const stageWidth = ref(0)
@@ -128,8 +134,9 @@ const viewerAnimating = ref(false)
 const viewerScale = ref(1)
 const viewerPanX = ref(0)
 const viewerPanY = ref(0)
+const zoomLayout = ref({ w: 0, h: 0, cw: 0, ch: 0 })
 
-const stageTouch = { x: 0, y: 0, t: 0, moved: false }
+const stageTouch = { x: 0, y: 0, t: 0, moved: false, swiped: false, blockOpenUntil: 0 }
 const viewerTouch = {
   mode: 'none',
   startX: 0,
@@ -138,6 +145,13 @@ const viewerTouch = {
   suppressClick: false,
   pinchStart: 0,
   pinchScale: 1,
+  panStartX: 0,
+  panStartY: 0
+}
+const viewerMouse = {
+  down: false,
+  startX: 0,
+  startY: 0,
   panStartX: 0,
   panStartY: 0
 }
@@ -167,14 +181,79 @@ const viewerZoomStyle = computed(() => ({
   transition: viewerAnimating.value ? 'transform 0.28s ease-out' : 'none'
 }))
 
+const isViewerTrackMode = computed(() =>
+  props.urls.length > 1 && isNearUnitScale(viewerScale.value)
+)
+
+function isNearUnitScale(scale) {
+  return Math.abs(scale - VIEWER_UNIT_SCALE) < VIEWER_SCALE_EPS
+}
+
+function clampViewerScale(scale) {
+  return Math.min(VIEWER_MAX_SCALE, Math.max(VIEWER_MIN_SCALE, scale))
+}
+
 watch(() => props.urls, () => {
   activeIndex.value = 0
   stageDrag.value = 0
+  nextTick(measureSizes)
 })
 
 function measureSizes() {
   stageWidth.value = stageRef.value?.clientWidth || 0
   viewerWidth.value = viewerRef.value?.clientWidth || window.innerWidth
+  measureZoomImg()
+}
+
+function measureZoomImg() {
+  const img = zoomImgRef.value
+  const stage = viewerRef.value
+  if (!img?.naturalWidth || !stage) return
+  const cw = stage.clientWidth
+  const ch = stage.clientHeight
+  const ratio = img.naturalWidth / img.naturalHeight
+  const containerRatio = cw / ch
+  let w
+  let h
+  if (ratio > containerRatio) {
+    w = cw
+    h = cw / ratio
+  } else {
+    h = ch
+    w = ch * ratio
+  }
+  zoomLayout.value = { w, h, cw, ch }
+}
+
+function clampViewerPan(x, y, scale) {
+  const { w, h, cw, ch } = zoomLayout.value
+  if (!w || !cw) return { x: 0, y: 0 }
+  const sw = w * scale
+  const sh = h * scale
+  let minX = 0
+  let maxX = 0
+  let minY = 0
+  let maxY = 0
+  if (Math.abs(sw - cw) > 0.5) {
+    const edge = Math.abs(sw - cw) / 2
+    minX = -edge
+    maxX = edge
+  }
+  if (Math.abs(sh - ch) > 0.5) {
+    const edge = Math.abs(sh - ch) / 2
+    minY = -edge
+    maxY = edge
+  }
+  return {
+    x: Math.min(maxX, Math.max(minX, x)),
+    y: Math.min(maxY, Math.max(minY, y))
+  }
+}
+
+function applyViewerPan(x, y, scale = viewerScale.value) {
+  const clamped = clampViewerPan(x, y, scale)
+  viewerPanX.value = clamped.x
+  viewerPanY.value = clamped.y
 }
 
 function clampIndex(idx) {
@@ -261,7 +340,12 @@ function onStageMouseDown(e) {
   document.addEventListener('mouseup', onUp)
 }
 
-function onStageClick() {
+function onStageClick(e) {
+  if (Date.now() < stageTouch.blockOpenUntil) {
+    e?.preventDefault?.()
+    e?.stopPropagation?.()
+    return
+  }
   if (stageTouch.swiped || stageTouch.moved) {
     stageTouch.swiped = false
     stageTouch.moved = false
@@ -275,21 +359,87 @@ function resetViewerTransform(animate = true) {
   viewerScale.value = 1
   viewerPanX.value = 0
   viewerPanY.value = 0
+  zoomLayout.value = { w: 0, h: 0, cw: 0, ch: 0 }
 }
 
 function openViewer() {
+  if (viewerOpen.value) return
   resetViewerTransform(false)
   viewerDrag.value = 0
   viewerOpen.value = true
   document.body.style.overflow = 'hidden'
-  nextTick(measureSizes)
+  nextTick(() => {
+    measureSizes()
+    if (zoomImgRef.value?.complete) measureZoomImg()
+  })
 }
 
 function closeViewer() {
+  if (!viewerOpen.value) return
   viewerOpen.value = false
   document.body.style.overflow = ''
   resetViewerTransform(false)
   viewerDrag.value = 0
+}
+
+/** Close fullscreen and ignore the ghost click that would reopen it (mobile Safari). */
+function closeViewerAndBlockReopen() {
+  stageTouch.blockOpenUntil = Date.now() + 650
+  viewerTouch.suppressClick = true
+  closeViewer()
+  window.setTimeout(() => {
+    viewerTouch.suppressClick = false
+  }, 650)
+}
+
+function applyViewerScale(nextScale) {
+  const clamped = clampViewerScale(nextScale)
+  viewerScale.value = clamped
+  nextTick(() => {
+    measureZoomImg()
+    if (isNearUnitScale(clamped)) {
+      viewerPanX.value = 0
+      viewerPanY.value = 0
+    } else {
+      applyViewerPan(viewerPanX.value, viewerPanY.value, clamped)
+    }
+  })
+}
+
+function onViewerWheel(e) {
+  viewerAnimating.value = false
+  const step = e.deltaY > 0 ? -0.1 : 0.1
+  applyViewerScale(viewerScale.value + step)
+}
+
+function onViewerMouseDown(e) {
+  if (e.button !== 0 || isViewerTrackMode.value) return
+  viewerAnimating.value = false
+  viewerMouse.down = true
+  viewerMouse.startX = e.clientX
+  viewerMouse.startY = e.clientY
+  viewerMouse.panStartX = viewerPanX.value
+  viewerMouse.panStartY = viewerPanY.value
+  viewerTouch.moved = false
+  document.addEventListener('mousemove', onViewerMouseMove)
+  document.addEventListener('mouseup', onViewerMouseUp)
+}
+
+function onViewerMouseMove(e) {
+  if (!viewerMouse.down) return
+  const dx = e.clientX - viewerMouse.startX
+  const dy = e.clientY - viewerMouse.startY
+  if (Math.abs(dx) > 6 || Math.abs(dy) > 6) viewerTouch.moved = true
+  applyViewerPan(viewerMouse.panStartX + dx, viewerMouse.panStartY + dy)
+}
+
+function onViewerMouseUp() {
+  if (!viewerMouse.down) return
+  viewerMouse.down = false
+  document.removeEventListener('mousemove', onViewerMouseMove)
+  document.removeEventListener('mouseup', onViewerMouseUp)
+  measureZoomImg()
+  applyViewerPan(viewerPanX.value, viewerPanY.value)
 }
 
 function touchDistance(touches) {
@@ -312,7 +462,7 @@ function onViewerTouchStart(e) {
     viewerTouch.moved = false
     viewerTouch.panStartX = viewerPanX.value
     viewerTouch.panStartY = viewerPanY.value
-    viewerTouch.mode = viewerScale.value > 1.01 ? 'pan' : 'swipe'
+    viewerTouch.mode = isNearUnitScale(viewerScale.value) ? 'swipe' : 'pan'
   }
 }
 
@@ -322,12 +472,8 @@ function onViewerTouchMove(e) {
     viewerTouch.mode = 'pinch'
     viewerTouch.moved = true
     const dist = touchDistance(e.touches)
-    const nextScale = Math.min(4, Math.max(1, viewerTouch.pinchScale * (dist / viewerTouch.pinchStart)))
-    viewerScale.value = nextScale
-    if (nextScale <= 1.01) {
-      viewerPanX.value = 0
-      viewerPanY.value = 0
-    }
+    const nextScale = clampViewerScale(viewerTouch.pinchScale * (dist / viewerTouch.pinchStart))
+    applyViewerScale(nextScale)
     return
   }
   if (e.touches.length !== 1) return
@@ -338,14 +484,13 @@ function onViewerTouchMove(e) {
   const dy = y - viewerTouch.startY
   if (Math.abs(dx) > 6 || Math.abs(dy) > 6) viewerTouch.moved = true
 
-  if (viewerTouch.mode === 'pan' && viewerScale.value > 1.01) {
+  if (viewerTouch.mode === 'pan' && !isNearUnitScale(viewerScale.value)) {
     e.preventDefault()
-    viewerPanX.value = viewerTouch.panStartX + dx
-    viewerPanY.value = viewerTouch.panStartY + dy
+    applyViewerPan(viewerTouch.panStartX + dx, viewerTouch.panStartY + dy)
     return
   }
 
-  if (viewerTouch.mode === 'swipe' && viewerScale.value <= 1.01 && props.urls.length > 1) {
+  if (viewerTouch.mode === 'swipe' && isNearUnitScale(viewerScale.value) && props.urls.length > 1) {
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
       e.preventDefault()
       viewerDrag.value = rubberBand(
@@ -359,28 +504,37 @@ function onViewerTouchMove(e) {
 
 function onViewerTouchEnd(e) {
   if (viewerTouch.mode === 'pinch') {
-    if (viewerScale.value < 1.05) resetViewerTransform(true)
+    measureZoomImg()
+    if (isNearUnitScale(viewerScale.value)) {
+      viewerPanX.value = 0
+      viewerPanY.value = 0
+    } else {
+      applyViewerPan(viewerPanX.value, viewerPanY.value)
+    }
     viewerTouch.mode = 'none'
     return
   }
 
   if (viewerTouch.mode === 'pan') {
+    measureZoomImg()
+    applyViewerPan(viewerPanX.value, viewerPanY.value)
     const dx = e.changedTouches[0].clientX - viewerTouch.startX
     const dy = e.changedTouches[0].clientY - viewerTouch.startY
-    if (!viewerTouch.moved) handleViewerTap(dx, dy)
+    if (!viewerTouch.moved) handleViewerTap(e, dx, dy)
     viewerTouch.mode = 'none'
     return
   }
 
-  if (viewerTouch.mode === 'swipe' && viewerScale.value <= 1.01 && props.urls.length > 1) {
+  if (viewerTouch.mode === 'swipe' && isNearUnitScale(viewerScale.value) && props.urls.length > 1) {
     const dx = e.changedTouches[0].clientX - viewerTouch.startX
     const dy = e.changedTouches[0].clientY - viewerTouch.startY
     const dir = resolveSwipe(viewerDrag.value || dx, viewerWidth.value)
     viewerAnimating.value = true
-    if (dir !== 0) slideTo(activeIndex.value + dir)
-    else {
+    if (dir !== 0) {
+      slideTo(activeIndex.value + dir)
+    } else {
       viewerDrag.value = 0
-      handleViewerTap(dx, dy)
+      if (!viewerTouch.moved) handleViewerTap(e, dx, dy)
     }
     viewerTouch.mode = 'none'
     return
@@ -389,23 +543,20 @@ function onViewerTouchEnd(e) {
   if (e.changedTouches.length === 1 && !viewerTouch.moved) {
     const dx = e.changedTouches[0].clientX - viewerTouch.startX
     const dy = e.changedTouches[0].clientY - viewerTouch.startY
-    handleViewerTap(dx, dy)
+    handleViewerTap(e, dx, dy)
   }
   viewerTouch.mode = 'none'
 }
 
-function handleViewerTap(dx, dy) {
+function handleViewerTap(e, dx, dy) {
   if (viewerTouch.moved && (Math.abs(dx) > 12 || Math.abs(dy) > 12)) return
-  viewerTouch.suppressClick = true
-  closeViewer()
-  window.setTimeout(() => {
-    viewerTouch.suppressClick = false
-  }, 400)
+  if (e?.cancelable) e.preventDefault()
+  closeViewerAndBlockReopen()
 }
 
 function onViewerClick() {
   if (viewerTouch.suppressClick || viewerTouch.moved) return
-  closeViewer()
+  closeViewerAndBlockReopen()
 }
 
 onMounted(() => {
@@ -415,6 +566,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', measureSizes)
+  document.removeEventListener('mousemove', onViewerMouseMove)
+  document.removeEventListener('mouseup', onViewerMouseUp)
   document.body.style.overflow = ''
 })
 
@@ -434,6 +587,8 @@ defineExpose({ slideTo, activeIndex })
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+}
+.gallery-stage.is-single {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -443,6 +598,7 @@ defineExpose({ slideTo, activeIndex })
   display: flex;
   height: 100%;
   will-change: transform;
+  flex-shrink: 0;
 }
 .gallery-slide,
 .viewer-slide {
@@ -493,12 +649,6 @@ defineExpose({ slideTo, activeIndex })
   font-size: 12px;
   z-index: 2;
 }
-.gallery-hint {
-  text-align: center;
-  font-size: 12px;
-  color: #999;
-  padding: 6px 0 2px;
-}
 .album-thumbs {
   display: flex;
   gap: 8px;
@@ -516,7 +666,7 @@ defineExpose({ slideTo, activeIndex })
   width: 64px;
   height: 64px;
   overflow: hidden;
-  &.active { border-color: #ff6b35; }
+  &.active { border-color: var(--shop-primary); }
   img {
     width: 100%;
     height: 100%;
@@ -566,10 +716,14 @@ defineExpose({ slideTo, activeIndex })
   overflow: hidden;
   touch-action: none;
 }
-.shop-image-viewer .viewer-stage.is-zoomed {
+.shop-image-viewer .viewer-stage.is-transforming {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: grab;
+}
+.shop-image-viewer .viewer-stage.is-transforming:active {
+  cursor: grabbing;
 }
 .shop-image-viewer .viewer-slide {
   flex-shrink: 0;
@@ -588,11 +742,5 @@ defineExpose({ slideTo, activeIndex })
   max-height: 100%;
   transform-origin: center center;
   will-change: transform;
-}
-.shop-image-viewer .viewer-hint {
-  text-align: center;
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 12px;
-  padding: 12px 0 calc(16px + env(safe-area-inset-bottom));
 }
 </style>

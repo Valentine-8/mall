@@ -43,6 +43,12 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/shop/login',
+    component: () => import('@/views/shop/login'),
+    hidden: true,
+    meta: { title: '登录' }
+  },
+  {
     path: '/register',
     component: () => import('@/views/register'),
     hidden: true

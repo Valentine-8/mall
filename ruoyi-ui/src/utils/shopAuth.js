@@ -29,7 +29,7 @@ export function promptShopLogin(router, redirect, options = {}) {
     type: 'info',
     distinguishCancelAndClose: true
   }).then(() => {
-    router.push({ path: '/login', query: { redirect: target } })
+    router.push({ path: '/shop/login', query: { redirect: target } })
   }).catch(() => {})
 }
 

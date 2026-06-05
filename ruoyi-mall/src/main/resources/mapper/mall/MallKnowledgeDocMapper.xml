@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mall.mapper.MallKnowledgeDocMapper">
+
+    <resultMap type="MallKnowledgeDoc" id="MallKnowledgeDocResult">
+        <result property="docId" column="doc_id"/>
+        <result property="title" column="title"/>
+        <result property="fileName" column="file_name"/>
+        <result property="fileType" column="file_type"/>
+        <result property="filePath" column="file_path"/>
+        <result property="status" column="status"/>
+        <result property="chunkCount" column="chunk_count"/>
+        <result property="errorMsg" column="error_msg"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectDocVo">
+        select doc_id, title, file_name, file_type, file_path, status, chunk_count, error_msg,
+               del_flag, create_by, create_time, update_by, update_time
+        from mall_knowledge_doc
+    </sql>
+
+    <select id="selectMallKnowledgeDocById" resultMap="MallKnowledgeDocResult">
+        <include refid="selectDocVo"/> where doc_id = #{docId} and del_flag = '0'
+    </select>
+
+    <select id="selectMallKnowledgeDocList" resultMap="MallKnowledgeDocResult">
+        <include refid="selectDocVo"/>
+        where del_flag = '0'
+        <if test="title != null and title != ''"> and title like concat('%', #{title}, '%')</if>
+        <if test="status != null and status != ''"> and status = #{status}</if>
+        order by create_time desc
+    </select>
+
+    <insert id="insertMallKnowledgeDoc" useGeneratedKeys="true" keyProperty="docId">
+        insert into mall_knowledge_doc (title, file_name, file_type, file_path, status, chunk_count,
+            error_msg, del_flag, create_by, create_time)
+        values (#{title}, #{fileName}, #{fileType}, #{filePath}, #{status}, #{chunkCount},
+            #{errorMsg}, '0', #{createBy}, sysdate())
+    </insert>
+
+    <update id="updateMallKnowledgeDoc">
+        update mall_knowledge_doc
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="chunkCount != null">chunk_count = #{chunkCount},</if>
+            <if test="errorMsg != null">error_msg = #{errorMsg},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where doc_id = #{docId}
+    </update>
+
+    <update id="deleteMallKnowledgeDocById">
+        update mall_knowledge_doc set del_flag = '2', update_time = sysdate() where doc_id = #{docId}
+    </update>
+</mapper>

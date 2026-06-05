@@ -71,6 +71,11 @@
             <span>购物车</span>
             <el-icon class="arrow"><ArrowRight /></el-icon>
           </div>
+          <div class="menu-item theme-row">
+            <el-icon><Brush /></el-icon>
+            <span>主题色</span>
+            <shop-theme-picker title="选择主题色" />
+          </div>
         </div>
 
         <div v-if="!isLogin" class="guest-panel shop-only-pc">
@@ -80,6 +85,11 @@
         </div>
 
         <el-button v-if="isLogin" class="logout-btn shop-only-mobile" @click="handleLogout">退出登录</el-button>
+
+        <div class="theme-panel shop-only-pc shop-card">
+          <div class="theme-panel-head">外观设置</div>
+          <shop-theme-picker title="商城主题色" />
+        </div>
       </div>
     </div>
   </div>
@@ -89,6 +99,7 @@
 import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import ShopThemePicker from '@/components/ShopThemePicker/index.vue'
 import { promptShopLogin } from '@/utils/shopAuth'
 import useUserStore from '@/store/modules/user'
 
@@ -150,7 +161,7 @@ function handleLogout() {
 
 .user-card {
   display: flex; align-items: center; gap: 14px;
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  background: var(--shop-gradient);
   border-radius: 12px; padding: 20px 16px; color: #fff; margin-bottom: 12px;
 }
 .avatar {
@@ -181,7 +192,7 @@ function handleLogout() {
   flex: 1; font-size: 11px; color: #666; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
-.shortcut .el-icon { font-size: 22px; color: #ff6b35; }
+.shortcut .el-icon { font-size: 22px; color: var(--shop-primary); }
 
 .menu-list { background: #fff; border-radius: 12px; overflow: hidden; }
 .menu-item {
@@ -189,8 +200,22 @@ function handleLogout() {
   padding: 16px; border-bottom: 1px solid #f5f5f5; font-size: 15px; cursor: pointer;
 }
 .menu-item:last-child { border-bottom: none; }
-.menu-item .el-icon:first-child { color: #ff6b35; font-size: 20px; }
+.menu-item .el-icon:first-child { color: var(--shop-primary); font-size: 20px; }
 .menu-item span { flex: 1; }
+.menu-item.theme-row {
+  cursor: default;
+  .arrow { display: none; }
+}
+.theme-panel {
+  margin-top: 16px;
+  padding: 20px 24px;
+}
+.theme-panel-head {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 14px;
+}
 .logout-btn { width: 100%; margin-top: 20px; }
 
 .guest-panel {
@@ -225,7 +250,7 @@ function handleLogout() {
     height: 72px;
     margin: 0 auto 12px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    background: var(--shop-gradient);
     color: #fff;
     display: flex;
     align-items: center;
@@ -252,12 +277,12 @@ function handleLogout() {
     cursor: pointer;
   }
   .nav-item:hover {
-    color: #ff6b35;
-    background: #fff9f6;
+    color: var(--shop-primary);
+    background: var(--shop-primary-muted);
   }
   .nav-item.active {
-    color: #ff6b35;
-    background: #fff5f0;
+    color: var(--shop-primary);
+    background: var(--shop-primary-soft);
     font-weight: 600;
   }
   .sidebar-logout {
@@ -278,7 +303,7 @@ function handleLogout() {
     border-radius: 8px;
     transition: background 0.2s;
   }
-  .shortcut:hover { background: #fff9f6; }
+  .shortcut:hover { background: var(--shop-primary-muted); }
   .shortcut .el-icon { font-size: 28px; }
 }
 </style>

@@ -14,6 +14,16 @@
         <result property="checked" column="checked"/>
     </resultMap>
 
+    <resultMap type="com.ruoyi.mall.domain.MallCart" id="MallCartResult">
+        <result property="cartId" column="cart_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="checked" column="checked"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
     <select id="selectCartVoListByUserId" parameterType="Long" resultMap="MallCartVoResult">
         select c.cart_id, c.product_id, p.product_name, p.pic, p.price, p.stock, p.status,
                c.quantity, c.checked
@@ -23,12 +33,12 @@
         order by c.update_time desc, c.cart_id desc
     </select>
 
-    <select id="selectCartByUserAndProduct" resultType="MallCart">
+    <select id="selectCartByUserAndProduct" resultMap="MallCartResult">
         select cart_id, user_id, product_id, quantity, checked, create_time, update_time
         from mall_cart where user_id = #{userId} and product_id = #{productId}
     </select>
 
-    <select id="selectCartById" resultType="MallCart">
+    <select id="selectCartById" resultMap="MallCartResult">
         select cart_id, user_id, product_id, quantity, checked, create_time, update_time
         from mall_cart where cart_id = #{cartId}
     </select>

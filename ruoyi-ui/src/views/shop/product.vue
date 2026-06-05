@@ -20,13 +20,13 @@
             <el-input-number v-model="quantity" :min="1" :max="product.stock" /></div>
           <div class="action-row shop-only-pc">
             <el-button type="warning" plain size="large" @click="addCart">加入购物车</el-button>
-            <el-button type="danger" size="large" @click="buyNow">立即购买</el-button>
+            <el-button type="danger" size="large" :loading="buying" @click="buyNow">立即购买</el-button>
           </div>
         </div>
       </div>
       <div class="bottom-bar shop-fixed-bar shop-only-mobile">
         <el-button type="warning" plain @click="addCart">加入购物车</el-button>
-        <el-button type="danger" @click="buyNow">立即购买</el-button>
+        <el-button type="danger" :loading="buying" @click="buyNow">立即购买</el-button>
       </div>
     </template>
   </div>
@@ -37,21 +37,16 @@ import { getAppProduct } from '@/api/app/product'
 import { addToCart } from '@/api/app/cart'
 import { ensureShopLogin } from '@/utils/shopAuth'
 import { buildBuyNowCheckoutPath, prepareBuyNowCartIds } from '@/utils/shopCheckout'
-import { productCoverPic, resolveShopMedia, resolveShopMediaList } from '@/utils/shopMedia'
+import { buildProductMediaUrls, resolveShopMedia } from '@/utils/shopMedia'
 const route = useRoute()
 const router = useRouter()
 const { proxy } = getCurrentInstance()
 const product = ref(null)
 const loading = ref(true)
 const quantity = ref(1)
+const buying = ref(false)
 const stageHeight = ref('320px')
-const albumUrls = computed(() => {
-  if (!product.value) return []
-  const urls = resolveShopMediaList(product.value.album)
-  const main = resolveShopMedia(productCoverPic(product.value))
-  if (main && !urls.includes(main)) urls.unshift(main)
-  return urls
-})
+const albumUrls = computed(() => buildProductMediaUrls(product.value))
 const videoUrl = computed(() => product.value ? resolveShopMedia(product.value.video) : '')
 function updateStageHeight() {
   stageHeight.value = window.innerWidth >= 769 ? '420px' : '320px'
@@ -69,16 +64,22 @@ function loadProduct() {
 }
 async function addCart() {
   if (!(await ensureShopLogin(router, route.fullPath, { scene: 'addCart' }))) return
-  addToCart(product.value.productId, quantity.value).then(() => proxy.$modal.msgSuccess('已加入购物车'))
+  addToCart(product.value.productId, quantity.value)
+    .then(() => proxy.$modal.msgSuccess('已加入购物车'))
+    .catch(() => {})
 }
 async function buyNow() {
+  if (buying.value) return
   const checkoutPath = buildBuyNowCheckoutPath(product.value.productId, quantity.value)
   if (!(await ensureShopLogin(router, checkoutPath, { scene: 'buyNow' }))) return
+  buying.value = true
   try {
     const cartIds = await prepareBuyNowCartIds(product.value.productId, quantity.value)
     router.push({ path: '/shop/checkout', query: { cartIds: cartIds.join(',') } })
-  } catch (e) {
-    proxy.$modal.msgError(e.message || '无法进入结算')
+  } catch {
+    // axios 拦截器已提示错误
+  } finally {
+    buying.value = false
   }
 }
 onMounted(() => {
@@ -95,13 +96,13 @@ loadProduct()
 .product-layout { display: block; }
 .media-panel { display: flex; flex-direction: column; gap: 12px; }
 .hero-pic {
-  height: 260px; background: linear-gradient(145deg, #ffe8de, #fff5f0);
+  height: 260px; background: linear-gradient(145deg, rgba(var(--shop-primary-rgb), 0.14), var(--shop-primary-soft));
   display: flex; align-items: center; justify-content: center;
-  font-size: 72px; color: #ff6b35; font-weight: 700; border-radius: 12px;
+  font-size: 72px; color: var(--shop-primary); font-weight: 700; border-radius: 12px;
 }
 .product-video { width: 100%; max-height: 240px; border-radius: 12px; background: #000; }
 .detail-card { margin: -16px 0 0; background: #fff; border-radius: 12px; padding: 16px; }
-.price { color: #ff6b35; font-size: 24px; font-weight: 700; }
+.price { color: var(--shop-primary); font-size: 24px; font-weight: 700; }
 .detail-card h2 { margin: 8px 0; font-size: 18px; }
 .meta { color: #999; font-size: 13px; }
 .desc { color: #666; font-size: 14px; line-height: 1.6; margin-top: 12px; }

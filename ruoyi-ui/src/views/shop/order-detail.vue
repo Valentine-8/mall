@@ -135,13 +135,13 @@ load()
 <style scoped lang="scss">
 .shop-order-detail { padding: 12px 0 100px; }
 .status-banner {
-  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  background: var(--shop-gradient);
   border-radius: 12px; padding: 16px; color: #fff; margin-bottom: 12px;
 }
 .status-tip { margin: 8px 0 0; font-size: 13px; opacity: 0.95; }
 .card { background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
 .sn { font-size: 13px; color: #666; margin-bottom: 8px; }
-.amount { font-size: 22px; font-weight: 700; color: #ff6b35; }
+.amount { font-size: 22px; font-weight: 700; color: var(--shop-primary); }
 .addr { color: #666; font-size: 14px; }
 .line {
   display: flex; justify-content: space-between; padding: 10px 0;

@@ -11,6 +11,8 @@
 | 商品分类 | 分类增删改查、排序、启用停用 |
 | 商品管理 | 商品信息、价格库存、上下架 |
 | 订单管理 | 订单列表、详情、发货/完成/取消 |
+| 智能客服 | AI 对话、转人工、坐席工作台 |
+| 知识库 RAG | 文档上传切块、向量检索增强客服回答 |
 
 ### C 端商城（用户购物）
 
@@ -21,6 +23,16 @@
 | 购物车 | 勾选、改数量、结算 |
 | 下单支付 | 填写收货信息提交订单，模拟支付 |
 | 我的订单 | 查看订单、支付、取消待付款订单 |
+
+## 文档
+
+| 文档 | 说明 |
+|------|------|
+| **[docs/PRD.md](docs/PRD.md)** | 产品需求文档（功能范围、流程、接口、已知限制） |
+| **[docs/user-guide.md](docs/user-guide.md)** | 用户使用手册（买家 C 端 + 管理员 B 端） |
+| [docs/deploy-from-zero.md](docs/deploy-from-zero.md) | 从 0 到上线（服务器 / 备案 / Docker） |
+| [docs/git-deploy.md](docs/git-deploy.md) | GitHub 推送 + 本机编译 scp 部署 |
+| **[docs/knowledge-rag-deploy.md](docs/knowledge-rag-deploy.md)** | 轻量 RAG 知识库（MySQL + Embedding）服务器部署 |
 
 ## 从 0 到上线（服务器 / 备案 / 域名 / 真微信登录）
 

@@ -135,14 +135,14 @@ onMounted(loadOrders)
   flex-shrink: 0; padding: 6px 12px; border-radius: 16px;
   font-size: 13px; background: #fff; color: #666;
 }
-.status-tabs .tab.active { background: #fff5f0; color: #ff6b35; font-weight: 600; }
+.status-tabs .tab.active { background: var(--shop-primary-soft); color: var(--shop-primary); font-weight: 600; }
 .status-tabs-pc { margin-bottom: 16px; }
 .order-card {
   background: #fff; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer;
 }
 .head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
 .sn { color: #666; }
-.amount { font-size: 18px; font-weight: 700; color: #ff6b35; margin: 8px 0 4px; }
+.amount { font-size: 18px; font-weight: 700; color: var(--shop-primary); margin: 8px 0 4px; }
 .meta { font-size: 12px; color: #999; display: flex; gap: 8px; align-items: center; }
 .ship-tag { color: #409eff; }
 .actions { margin-top: 10px; display: flex; gap: 8px; justify-content: flex-end; }

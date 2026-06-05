@@ -118,6 +118,7 @@ insert into sys_dict_data values(33, 2, '已付款', '1', 'mall_order_status', '
 insert into sys_dict_data values(34, 3, '已发货', '2', 'mall_order_status', '', 'primary', 'N', '0', 'admin', sysdate(), '', null, null);
 insert into sys_dict_data values(35, 4, '已完成', '3', 'mall_order_status', '', 'success', 'N', '0', 'admin', sysdate(), '', null, null);
 insert into sys_dict_data values(36, 5, '已取消', '4', 'mall_order_status', '', 'danger', 'N', '0', 'admin', sysdate(), '', null, null);
+insert into sys_dict_data values(37, 6, '已退款', '5', 'mall_order_status', '', 'danger', 'N', '0', 'admin', sysdate(), '', null, '商城订单已退款');
 
 insert into sys_menu values('3000', '商城管理', '0', '5', 'mall', null, '', '', 1, 0, 'M', '0', '0', '', 'shopping', 'admin', sysdate(), '', null, '商城管理目录');
 insert into sys_menu values('3001', '商品分类', '3000', '1', 'category', 'mall/category/index', '', '', 1, 0, 'C', '0', '0', 'mall:category:list', 'tree', 'admin', sysdate(), '', null, '商品分类菜单');

@@ -2,7 +2,7 @@ import defaultSettings from '@/settings'
 import useSettingsStore from '@/store/modules/settings'
 import router from '@/router'
 
-const shopSiteTitle = import.meta.env.VITE_APP_SHOP_TITLE || '若依商城'
+const shopSiteTitle = import.meta.env.VITE_APP_SHOP_TITLE || '\u56fd\u6e05\u5546\u57ce'
 
 function isShopPath(path) {
   return path && path.startsWith('/shop')
